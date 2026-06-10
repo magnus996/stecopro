@@ -30,7 +30,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Operator, produksjonsleder, and admin see role-appropriate navigation
   4. Database schema exists for tenants, plants, machines, shifts, fractions, bale events, stop events, and time-series readings
   5. Every data table carries tenant scoping enforced in the data access layer (not per-query discipline)
-**Plans**: TBD during planning
+**Plans**: 4 plans
+- [ ] 01-01-PLAN.md — Project foundation: deps, env, db connection singleton, drizzle config
+- [ ] 01-02-PLAN.md — Tenant-scoped schema (SIMU-01), migration, and demo seed
+- [ ] 01-03-PLAN.md — jose sessions, tenant-scoping DAL, login/logout, proxy route protection
+- [ ] 01-04-PLAN.md — Protected shell, role-based navigation, dashboard placeholder, E2E verify
 
 ### Phase 2: Simulator & Ingest
 **Goal**: The demo plant produces 14 days of believable history and keeps running live
