@@ -10,24 +10,24 @@ See: .planning/PROJECT.md (updated 2026-06-11)
 ## Current Position
 
 Phase: 1 of 5 (Foundation)
-Plan: 2 of 4 in current phase
+Plan: 3 of 4 in current phase
 Status: In progress
-Last activity: 2026-06-11 — Completed 01-02-PLAN.md
+Last activity: 2026-06-10 — Completed 01-03-PLAN.md
 
-Progress: [██░░░░░░░░] 20% (2 plans complete)
+Progress: [███░░░░░░░] 30% (3 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 4 min
-- Total execution time: 8 min
+- Total plans completed: 3
+- Average duration: 11 min
+- Total execution time: 34 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1 Foundation | 2/4 | 8 min | 4 min |
+| 1 Foundation | 3/4 | 34 min | 11 min |
 
 *Updated after each plan completion*
 
@@ -46,11 +46,14 @@ Recent decisions affecting current work:
 - Hand-rolled jose sessions chosen over next-auth@beta (v5 still in beta June 2026)
 - Project-local npm cache (.npm-cache/) required due to global cache EACCES issues in this sandbox
 - bcryptjs (pure JS) over argon2 — no native build step for demo credentials
-- globalForDb singleton pattern for better-sqlite3 (prevents SQLITE_BUSY on HMR)
+- db/index.ts creates fresh Database() per module load (not globalThis singleton) — Turbopack worker threads don't share globalThis
 - tsx installed as dev dep so seed script runs without separate build step
 - drizzle-kit push used for Phase 1 dev iteration (switch to generate before production)
 - system_admin seeded in tenant 1 for Phase 1; Phase 5 adds cross-tenant management
 - Seed uses direct Database() connection (not server-only singleton) to run via tsx outside Next.js
+- proxy.ts must be in src/ (not project root) for Turbopack detection in src/-layout projects
+- Proxy uses req.cookies (not cookies() API) to read session in proxy/middleware context
+- Login page split: Server Component (page.tsx with force-dynamic) + Client Component (LoginForm.tsx)
 
 ### Pending Todos
 
@@ -69,8 +72,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-10T22:49:00Z
-Stopped at: Completed 01-02-PLAN.md
+Last session: 2026-06-10T23:15:17Z
+Stopped at: Completed 01-03-PLAN.md
 Resume file: None
 
 ---
