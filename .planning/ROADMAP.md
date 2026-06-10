@@ -31,7 +31,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Database schema exists for tenants, plants, machines, shifts, fractions, bale events, stop events, and time-series readings
   5. Every data table carries tenant scoping enforced in the data access layer (not per-query discipline)
 **Plans**: 4 plans
-- [ ] 01-01-PLAN.md — Project foundation: deps, env, db connection singleton, drizzle config
+- [x] 01-01-PLAN.md — Project foundation: deps, env, db connection singleton, drizzle config
 - [ ] 01-02-PLAN.md — Tenant-scoped schema (SIMU-01), migration, and demo seed
 - [ ] 01-03-PLAN.md — jose sessions, tenant-scoping DAL, login/logout, proxy route protection
 - [ ] 01-04-PLAN.md — Protected shell, role-based navigation, dashboard placeholder, E2E verify
@@ -94,7 +94,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/? | Not started | - |
+| 1. Foundation | 1/4 | In progress | - |
 | 2. Simulator & Ingest | 0/? | Not started | - |
 | 3. Live Dashboard | 0/? | Not started | - |
 | 4. Shift Reports & Analysis | 0/? | Not started | - |

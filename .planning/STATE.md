@@ -10,24 +10,24 @@ See: .planning/PROJECT.md (updated 2026-06-11)
 ## Current Position
 
 Phase: 1 of 5 (Foundation)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-06-11 — Project initialized (PROJECT.md, REQUIREMENTS.md, ROADMAP.md)
+Plan: 1 of 4 in current phase
+Status: In progress
+Last activity: 2026-06-10 — Completed 01-01-PLAN.md
 
-Progress: [░░░░░░░░░░] 0% (0 plans complete)
+Progress: [█░░░░░░░░░] 10% (1 plan complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: -
+- Total plans completed: 1
+- Average duration: 3 min
+- Total execution time: 3 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 1 Foundation | 1/4 | 3 min | 3 min |
 
 *Updated after each plan completion*
 
@@ -43,17 +43,22 @@ Recent decisions affecting current work:
 - Simulator writes through the same ingest interface a future OPC UA adapter will use
 - OEE quality factor approximated and configurable (no material analysis in scope)
 - Roles: operator < produksjonsleder < admin, plus Steco system admin for tenant management
+- Hand-rolled jose sessions chosen over next-auth@beta (v5 still in beta June 2026)
+- Project-local npm cache (.npm-cache/) required due to global cache EACCES issues in this sandbox
+- bcryptjs (pure JS) over argon2 — no native build step for demo credentials
+- globalForDb singleton pattern for better-sqlite3 (prevents SQLITE_BUSY on HMR)
+- tsx installed as dev dep so seed script runs without separate build step
 
 ### Pending Todos
 
-None yet.
+None.
 
 ### Blockers/Concerns
 
-None yet.
+None.
 
 **Research flags for planning:**
-- Phase 1: Auth choice (Auth.js credentials vs hand-rolled session) and tenant scoping pattern in the data access layer deserve a deliberate pick — hardest thing to retrofit
+- Phase 1: Auth choice resolved — hand-rolled jose sessions confirmed; tenant scoping DAL in 01-03
 - Phase 2: Simulator realism drives the whole demo; model plant state as a state machine (running / small-stop / fault / empty / outside-shift) generating consistent current draw, stops, and bale events
 - Phase 3: Polling is fine for refresh; avoid premature websockets
 - Phase 4: OEE math must be consistent between dashboard and reports — single shared calculation module
@@ -61,10 +66,10 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-11
-Stopped at: Planning files created, awaiting Phase 1 planning
+Last session: 2026-06-10T22:42:26Z
+Stopped at: Completed 01-01-PLAN.md
 Resume file: None
 
 ---
 *State initialized: 2026-06-11*
-*Next step: /gsd:plan-phase 1*
+*Next step: /gsd:execute-phase 1 (plan 01-02)*
