@@ -10,24 +10,24 @@ See: .planning/PROJECT.md (updated 2026-06-11)
 ## Current Position
 
 Phase: 1 of 5 (Foundation)
-Plan: 1 of 4 in current phase
+Plan: 2 of 4 in current phase
 Status: In progress
-Last activity: 2026-06-10 — Completed 01-01-PLAN.md
+Last activity: 2026-06-11 — Completed 01-02-PLAN.md
 
-Progress: [█░░░░░░░░░] 10% (1 plan complete)
+Progress: [██░░░░░░░░] 20% (2 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 3 min
-- Total execution time: 3 min
+- Total plans completed: 2
+- Average duration: 4 min
+- Total execution time: 8 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1 Foundation | 1/4 | 3 min | 3 min |
+| 1 Foundation | 2/4 | 8 min | 4 min |
 
 *Updated after each plan completion*
 
@@ -48,6 +48,9 @@ Recent decisions affecting current work:
 - bcryptjs (pure JS) over argon2 — no native build step for demo credentials
 - globalForDb singleton pattern for better-sqlite3 (prevents SQLITE_BUSY on HMR)
 - tsx installed as dev dep so seed script runs without separate build step
+- drizzle-kit push used for Phase 1 dev iteration (switch to generate before production)
+- system_admin seeded in tenant 1 for Phase 1; Phase 5 adds cross-tenant management
+- Seed uses direct Database() connection (not server-only singleton) to run via tsx outside Next.js
 
 ### Pending Todos
 
@@ -66,10 +69,10 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-10T22:42:26Z
-Stopped at: Completed 01-01-PLAN.md
+Last session: 2026-06-10T22:49:00Z
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None
 
 ---
 *State initialized: 2026-06-11*
-*Next step: /gsd:execute-phase 1 (plan 01-02)*
+*Next step: /gsd:execute-phase 1 (plan 01-03)*
