@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Shift Reports & Analysis** - Shift reports, historical reports, downtime Pareto, export
 - [x] **Phase 5: Administration & Demo Polish** - User/tenant/plant admin and demo seed
 - [x] **Phase 6: Calibration, Branding & Inventory** - Real-plant calibration, logo, production chart, bale inventory
-- [ ] **Phase 7: PWA Operator Companion** - Installable PWA, push notifications, in-shift reporting with photos
+- [x] **Phase 7: PWA Operator Companion** - Installable PWA, push notifications, in-shift reporting with photos
 
 ## Phase Details
 
@@ -135,11 +135,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. Photos upload from mobile camera, are tenant-isolated, and render in comment threads and notes
   6. Dev trigger endpoint lets a demo fire a stop+notification on command; full flow proven by e2e-phase7.sh; phases 1/3/5/6 suites stay green
 **Plans**: 5 plans (3 waves)
-- [ ] 07-01-PLAN.md — Data foundation: 5 tables, FK-safe seed deletion, getApiSession(), /uploads + VAPID .env scaffolding (Wave 1)
-- [ ] 07-02-PLAN.md — PWA shell: manifest, runtime icon routes, push-only service worker, logged-in PwaRegistrar (Wave 1)
-- [ ] 07-03-PLAN.md — Push pipeline: web-push + VAPID keys, tested notifier, NotifyingAdapter + live wiring, subscribe/unsubscribe/vapid + dev trigger-stop, PushToggle (Wave 2)
-- [ ] 07-04-PLAN.md — Reporting APIs + DAL: photo upload/serve, ack/comments/notes routes, 4 read accessors (Wave 2)
-- [ ] 07-05-PLAN.md — Operator UI + E2E: /skift, /varsler, /stopp/[id], nav + proxy, e2e-phase7.sh, demo docs (Wave 3)
+- [x] 07-01-PLAN.md — Data foundation: 5 tables, FK-safe seed deletion, getApiSession(), /uploads + VAPID .env scaffolding (Wave 1)
+- [x] 07-02-PLAN.md — PWA shell: manifest, runtime icon routes, push-only service worker, logged-in PwaRegistrar (Wave 1)
+- [x] 07-03-PLAN.md — Push pipeline: web-push + VAPID keys, tested notifier, NotifyingAdapter + live wiring, subscribe/unsubscribe/vapid + dev trigger-stop, PushToggle (Wave 2)
+- [x] 07-04-PLAN.md — Reporting APIs + DAL: photo upload/serve, ack/comments/notes routes, 4 read accessors (Wave 2)
+- [x] 07-05-PLAN.md — Operator UI + E2E: /skift, /varsler, /stopp/[id], nav + proxy, e2e-phase7.sh, demo docs (Wave 3)
 
 ## Progress
 
@@ -154,7 +154,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. Shift Reports & Analysis | 3/3 | Complete | 2026-06-11 |
 | 5. Administration & Demo Polish | 6/6 | Complete | 2026-06-11 |
 | 6. Calibration, Branding & Inventory | 4/4 | Complete | 2026-06-11 |
-| 7. PWA Operator Companion | 0/5 | Not started | - |
+| 7. PWA Operator Companion | 5/5 | Complete | 2026-06-11 |
 
 ---
 *Roadmap created: 2026-06-11*

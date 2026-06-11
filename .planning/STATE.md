@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-06-11)
 
 **Core value:** Plant owners see exactly what their sorting plant is doing — uptime, OEE, stops with reasons, and bales produced per fraction — without walking the floor or reading PLC logs.
-**Current focus:** Phase 7 in progress — PWA operator companion (data foundation + PWA shell running in parallel)
+**Current focus:** Phase 7 COMPLETE — all 5 plans executed; full PWA operator flow proven by e2e-phase7.sh
 
 ## Current Position
 
 Phase: 7 of 7 (PWA Operator)
-Plan: 07-01, 07-02, 07-03, 07-04 complete (4/5 in phase 7)
-Status: In progress
-Last activity: 2026-06-11 — Completed 07-03-PLAN.md (push pipeline: notifier, NotifyingAdapter, API routes, PushToggle)
+Plan: 5 of 5 in phase 7 — ALL COMPLETE
+Status: Phase complete / Milestone complete
+Last activity: 2026-06-11 — Completed 07-05-PLAN.md (operator UI, e2e-phase7.sh, README)
 
-Progress: [██████████░] ~96% (26+ plans complete)
+Progress: [███████████] 100% (27 plans complete)
 
 ## Performance Metrics
 
@@ -107,6 +107,10 @@ Recent decisions affecting current work:
 - getTenantById tenantId param is lookup key only (not security boundary); security = system_admin role check preceding the query
 - E2E blocked() helper: passes if status != 200 OR body lacks expected heading — handles both 307 redirects (proxy/page-level) and RSC role-gate redirects
 - E2E user CRUD: npx tsx -e inline snippets using better-sqlite3 directly — avoids RSC multipart form complexity, tests !user.active auth path precisely
+- StopActions expandable form — collapsed by default, expands on 'Kommenter / kamera' for compact inline use on /skift
+- SC10 reason check uses corrected reason string — SC6's correctedReason call updates stop_events.reason in place
+- Regression scripts (e2e-phase1, e2e-phase3) updated to ${BASE:-...} pattern for port override compatibility
+- E2E 1×1 PNG: base64-inline hardcoded for photo round-trip testing without external fixtures
 
 ### Pending Todos
 
@@ -125,10 +129,10 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-11T16:32:50Z
-Stopped at: Completed 07-03-PLAN.md (push pipeline: notifier, NotifyingAdapter, API routes, PushToggle)
+Last session: 2026-06-11T17:24:00Z
+Stopped at: Completed 07-05-PLAN.md (operator UI pages, e2e-phase7.sh, README — final plan)
 Resume file: None
 
 ---
 *State initialized: 2026-06-11*
-*Next step: Execute remaining 07-pwa-operator plans (07-05 onwards)*
+*Next step: /gsd:complete-milestone — all 7 phases complete*
