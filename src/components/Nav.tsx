@@ -5,14 +5,16 @@ import type { UserRole } from '@/db/schema'
 interface NavProps {
   role: UserRole
   currentPath?: string
+  // Horizontal pill row for the mobile top bar; vertical list in the sidebar.
+  horizontal?: boolean
 }
 
-export default function Nav({ role, currentPath }: NavProps) {
+export default function Nav({ role, currentPath, horizontal }: NavProps) {
   const items = navItemsForRole(role)
 
   return (
     <nav>
-      <ul className="flex flex-col gap-1">
+      <ul className={horizontal ? 'flex flex-row gap-1 whitespace-nowrap' : 'flex flex-col gap-1'}>
         {items.map((item) => {
           const isActive = currentPath === item.href
           return (

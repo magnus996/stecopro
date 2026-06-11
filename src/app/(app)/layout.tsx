@@ -31,7 +31,7 @@ export default async function AppLayout({
   const roleLabel = ROLE_LABELS[user.role]
 
   return (
-    <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-950">
+    <div className="flex min-h-screen flex-col bg-zinc-50 md:flex-row dark:bg-zinc-950">
       {/* Sidebar */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 md:flex">
         {/* App title */}
@@ -73,12 +73,12 @@ export default async function AppLayout({
         </header>
         {/* Mobile nav */}
         <div className="overflow-x-auto border-b border-zinc-200 bg-white px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900">
-          <Nav role={user.role} />
+          <Nav role={user.role} horizontal />
         </div>
       </div>
 
       {/* Main content area */}
-      <main className="flex-1 overflow-y-auto p-6">{children}</main>
+      <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
 
       <PwaRegistrar />
     </div>

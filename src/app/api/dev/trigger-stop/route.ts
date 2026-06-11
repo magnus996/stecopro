@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getApiSession } from '@/lib/api-auth'
 import { db } from '@/db'
-import { plants } from '@/db/schema'
-import { eq } from 'drizzle-orm'
+import { plants, stopEvents } from '@/db/schema'
+import { and, eq, isNull, lt } from 'drizzle-orm'
 import { SqliteIngestAdapter } from '@/lib/ingest/sqlite-adapter'
 import { notifyStop } from '@/lib/notifier/notifier'
 import type { StopType } from '@/lib/ingest/interface'
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Parse optional body
-    let body: { reason?: string; stopType?: string } = {}
+    let body: { reason?: string; stopType?: string; durationMin?: number } = {}
     try {
       body = await req.json()
     } catch {
@@ -64,9 +64,38 @@ export async function POST(req: NextRequest) {
       body.reason ??
       (stopType === 'idle' ? 'Bunker tom' : 'driftsstans transportbånd')
 
+    // Clean up zombie test stops: any open stop older than 10 minutes was
+    // most likely triggered here and never closed (the live simulator only
+    // closes stops it created itself). Without this, a forgotten test stop
+    // keeps the dashboard on "Stanset" forever.
+    const tenMinAgo = new Date(Date.now() - 10 * 60 * 1000)
+    await db
+      .update(stopEvents)
+      .set({ endAt: new Date() })
+      .where(
+        and(
+          eq(stopEvents.tenantId, session.tenantId),
+          eq(stopEvents.plantId, plant.id),
+          isNull(stopEvents.endAt),
+          lt(stopEvents.startAt, tenMinAgo),
+        ),
+      )
+
     // Inject stop via adapter
     const adapter = new SqliteIngestAdapter(db, session.tenantId)
     const stopId = adapter.reportStop(plant.id, new Date(), reason, stopType)
+
+    // Auto-close the test stop after durationMin (default 2, max 30) so the
+    // dashboard shows the red "Stanset" state for a demo-friendly window and
+    // then recovers on its own.
+    const durationMin = Math.min(Math.max(body.durationMin ?? 2, 0), 30)
+    setTimeout(() => {
+      try {
+        adapter.reportStopEnded(stopId, new Date())
+      } catch (e) {
+        console.error('[trigger-stop] auto-close failed:', e)
+      }
+    }, durationMin * 60 * 1000)
 
     // Fire notification (errors are isolated inside notifyStop)
     const result = await notifyStop(db, {
