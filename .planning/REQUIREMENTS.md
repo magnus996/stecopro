@@ -9,15 +9,15 @@ Requirements for the technology demo. Each maps to roadmap phases.
 
 ### Multi-tenant & Users
 
-- [ ] **TENA-01**: Users log in with email/password (seeded demo users)
-- [ ] **TENA-02**: All data is isolated per tenant; users only see their own tenant's plants
-- [ ] **TENA-03**: Roles with differentiated access: operator (view dashboards/shift reports), produksjonsleder (all reports + plant config), admin (user management), Steco system admin (tenant management)
+- [x] **TENA-01**: Users log in with email/password (seeded demo users)
+- [x] **TENA-02**: All data is isolated per tenant; users only see their own tenant's plants
+- [x] **TENA-03**: Roles with differentiated access: operator (view dashboards/shift reports), produksjonsleder (all reports + plant config), admin (user management), Steco system admin (tenant management)
 - [ ] **TENA-04**: Tenant admin can create, edit, and deactivate users within own tenant
 - [ ] **TENA-05**: System admin can create and manage tenants and their plants
 
 ### Data Model & Simulator
 
-- [ ] **SIMU-01**: Data model covers tenants, plants, machines, shifts, fractions, bale events, stop events (with reason), and time-series readings (current draw) — designed so an OPC UA adapter can replace the simulator
+- [x] **SIMU-01**: Data model covers tenants, plants, machines, shifts, fractions, bale events, stop events (with reason), and time-series readings (current draw) — designed so an OPC UA adapter can replace the simulator
 - [ ] **SIMU-02**: Ingest interface (internal API) through which all plant data enters the system; simulator is just one producer
 - [ ] **SIMU-03**: Simulator generates 14 days of history: two shifts per day (07–15, 15–22), ~90% availability
 - [ ] **SIMU-04**: Stops follow realistic patterns: frequent small stops (2–10 min), occasional longer stops, each with an HMI-reported reason (e.g. driftsstans transportbånd, nødstopp, papirbrudd i presse, planlagt vedlikehold)
@@ -95,12 +95,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TENA-01 | Phase 1 | Pending |
-| TENA-02 | Phase 1 | Pending |
-| TENA-03 | Phase 1 | Pending |
+| TENA-01 | Phase 1 | Complete |
+| TENA-02 | Phase 1 | Complete |
+| TENA-03 | Phase 1 | Complete |
 | TENA-04 | Phase 5 | Pending |
 | TENA-05 | Phase 5 | Pending |
-| SIMU-01 | Phase 1 | Pending |
+| SIMU-01 | Phase 1 | Complete |
 | SIMU-02 | Phase 2 | Pending |
 | SIMU-03 | Phase 2 | Pending |
 | SIMU-04 | Phase 2 | Pending |

@@ -12,7 +12,7 @@ StecoPro's technology demo proves the product end-to-end on mock data: a multi-t
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - App scaffold, data model, multi-tenant auth with roles
+- [x] **Phase 1: Foundation** - App scaffold, data model, multi-tenant auth with roles
 - [ ] **Phase 2: Simulator & Ingest** - Realistic mock plant data through the real ingest interface
 - [ ] **Phase 3: Live Dashboard** - Plant status, OEE, bale counts, current draw, stops
 - [ ] **Phase 4: Shift Reports & Analysis** - Shift reports, historical reports, downtime Pareto, export
@@ -34,7 +34,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] 01-01-PLAN.md — Project foundation: deps, env, db connection singleton, drizzle config
 - [x] 01-02-PLAN.md — Tenant-scoped schema (SIMU-01), migration, and demo seed
 - [x] 01-03-PLAN.md — jose sessions, tenant-scoping DAL, login/logout, proxy route protection
-- [ ] 01-04-PLAN.md — Protected shell, role-based navigation, dashboard placeholder, E2E verify
+- [x] 01-04-PLAN.md — Protected shell, role-based navigation, dashboard placeholder, E2E verify
 
 ### Phase 2: Simulator & Ingest
 **Goal**: The demo plant produces 14 days of believable history and keeps running live
@@ -94,7 +94,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 3/4 | In progress | - |
+| 1. Foundation | 4/4 | Complete | 2026-06-11 |
 | 2. Simulator & Ingest | 0/? | Not started | - |
 | 3. Live Dashboard | 0/? | Not started | - |
 | 4. Shift Reports & Analysis | 0/? | Not started | - |
