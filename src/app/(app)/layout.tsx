@@ -20,7 +20,11 @@ export default async function AppLayout({
   const user = await getCurrentUser()
 
   if (!user) {
-    redirect('/login')
+    // Valid JWT but no matching active user (stale cookie after a reseed,
+    // or deactivated account): clear the cookie via the logout route —
+    // redirecting straight to /login would loop, since the proxy bounces
+    // cookie-holders back to /dashboard.
+    redirect('/api/auth/logout')
   }
 
   const roleLabel = ROLE_LABELS[user.role]
