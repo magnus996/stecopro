@@ -17,7 +17,7 @@ import {
   users, plants, tenants,
   shifts, stopEvents, baleEvents, machines, timeSeriesReadings, fractions,
 } from '@/db/schema'
-import { eq, and, lte, gt, gte, lt, desc, asc, isNull, or, sql } from 'drizzle-orm'
+import { eq, and, lte, gt, gte, lt, desc, asc, isNull, isNotNull, or, sql } from 'drizzle-orm'
 import type { SessionPayload } from './definitions'
 import { getShiftType, getShiftBoundsUtc } from './time'
 import { calculateOee, QUALITY_FACTOR } from './oee'
@@ -760,5 +760,239 @@ export const getDashboardData = cache(async (plantId: number): Promise<Dashboard
       expectedBalesSoFar,
       actualBalesSoFar: shiftBaleCount,
     },
+  }
+})
+
+// ---------------------------------------------------------------------------
+// Task 2: Pareto, bales-per-day, day-vs-evening, energy-proxy accessors
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns stop-reason aggregates for Pareto analysis in [fromDate, toDate].
+ * Raw totals only — cumulative % is computed in JS by the page (RESEARCH anti-pattern avoidance).
+ * Only closed stops (endAt IS NOT NULL) with a reason are included.
+ */
+export const getParetoData = cache(async (
+  plantId: number,
+  fromDate: string,  // Oslo 'YYYY-MM-DD'
+  toDate: string,
+): Promise<ParetoRow[]> => {
+  const session = await verifySession()
+  const { startMs } = getShiftBoundsUtc(fromDate, 'day')
+  const { endMs } = getShiftBoundsUtc(toDate, 'evening')
+
+  return db
+    .select({
+      reason: stopEvents.reason,
+      stopType: stopEvents.stopType,
+      incidentCount: sql<number>`count(*)`,
+      totalSeconds: sql<number>`sum(coalesce(${stopEvents.endAt}, unixepoch()) - ${stopEvents.startAt})`,
+    })
+    .from(stopEvents)
+    .where(
+      and(
+        eq(stopEvents.tenantId, session.tenantId),
+        eq(stopEvents.plantId, plantId),
+        isNotNull(stopEvents.reason),
+        isNotNull(stopEvents.endAt),
+        gte(stopEvents.startAt, new Date(startMs)),
+        lt(stopEvents.startAt, new Date(endMs)),
+      )
+    )
+    .groupBy(stopEvents.reason, stopEvents.stopType)
+    .orderBy(desc(sql`sum(coalesce(${stopEvents.endAt}, unixepoch()) - ${stopEvents.startAt})`))
+    .then(rows => rows.map(r => ({
+      reason: r.reason as string,
+      stopType: r.stopType,
+      incidentCount: Number(r.incidentCount),
+      totalSeconds: Number(r.totalSeconds),
+    })))
+})
+
+/**
+ * Returns bale events grouped by Oslo calendar day and fraction in long format.
+ * Oslo day derivation done in JS (avoids UTC-vs-Oslo complexity in SQL).
+ * Also returns an ordered fractions list so the chart can assign stable colors.
+ */
+export const getBalesPerDayData = cache(async (
+  plantId: number,
+  fromDate: string,  // Oslo 'YYYY-MM-DD'
+  toDate: string,
+): Promise<{ rows: BalesPerDayRow[]; fractions: { id: number; name: string; sortOrder: number }[] }> => {
+  const session = await verifySession()
+  const { startMs } = getShiftBoundsUtc(fromDate, 'day')
+  const { endMs } = getShiftBoundsUtc(toDate, 'evening')
+
+  // Fetch raw bale rows with fraction name
+  const rawBales = await db
+    .select({
+      occurredAt: baleEvents.occurredAt,
+      fractionId: baleEvents.fractionId,
+      fractionName: fractions.name,
+    })
+    .from(baleEvents)
+    .innerJoin(fractions, eq(fractions.id, baleEvents.fractionId))
+    .where(
+      and(
+        eq(baleEvents.tenantId, session.tenantId),
+        eq(baleEvents.plantId, plantId),
+        gte(baleEvents.occurredAt, new Date(startMs)),
+        lt(baleEvents.occurredAt, new Date(endMs)),
+      )
+    )
+
+  // Fetch ordered fractions list for the chart
+  const fractionList = await db
+    .select({ id: fractions.id, name: fractions.name, sortOrder: fractions.sortOrder })
+    .from(fractions)
+    .where(
+      and(
+        eq(fractions.tenantId, session.tenantId),
+        eq(fractions.plantId, plantId),
+      )
+    )
+    .orderBy(asc(fractions.sortOrder))
+
+  // Group in JS: derive Oslo date string per row via Intl.DateTimeFormat
+  const osloFormatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Oslo' })
+  const countMap = new Map<string, number>()
+
+  for (const row of rawBales) {
+    const osloDate = osloFormatter.format(row.occurredAt)
+    const key = `${osloDate}|${row.fractionId}|${row.fractionName}`
+    countMap.set(key, (countMap.get(key) ?? 0) + 1)
+  }
+
+  const rows: BalesPerDayRow[] = []
+  for (const [key, count] of countMap.entries()) {
+    const [osloDate, fractionIdStr, fractionName] = key.split('|')
+    rows.push({ osloDate, fractionId: Number(fractionIdStr), fractionName, count })
+  }
+
+  // Sort by date then fraction sortOrder for stable output
+  const fractionOrder = new Map(fractionList.map((f, i) => [f.id, i]))
+  rows.sort((a, b) => {
+    const dateCmp = a.osloDate.localeCompare(b.osloDate)
+    if (dateCmp !== 0) return dateCmp
+    return (fractionOrder.get(a.fractionId) ?? 0) - (fractionOrder.get(b.fractionId) ?? 0)
+  })
+
+  return { rows, fractions: fractionList }
+})
+
+/**
+ * Returns day vs evening comparison over [fromDate, toDate], bucketed by shiftType.
+ * Reuses getShiftReportList for OEE consistency (same calculateOee path as the list page).
+ * avgUptimePct is weighted (sum(run)/sum(planned)) not a mean of ratios.
+ */
+export const getDayVsEveningComparison = cache(async (
+  plantId: number,
+  fromDate: string,  // Oslo 'YYYY-MM-DD'
+  toDate: string,
+): Promise<ShiftComparisonRow[]> => {
+  const allShifts = await getShiftReportList(plantId, fromDate, toDate)
+
+  const buckets = new Map<string, {
+    shiftCount: number
+    sumOee: number
+    sumAvailability: number
+    sumPerformance: number
+    sumRunSeconds: number
+    sumPlannedSeconds: number
+    totalBales: number
+    totalStopSeconds: number
+    totalStopCount: number
+  }>()
+
+  for (const shift of allShifts) {
+    const existing = buckets.get(shift.shiftType) ?? {
+      shiftCount: 0, sumOee: 0, sumAvailability: 0, sumPerformance: 0,
+      sumRunSeconds: 0, sumPlannedSeconds: 0, totalBales: 0,
+      totalStopSeconds: 0, totalStopCount: 0,
+    }
+    existing.shiftCount += 1
+    existing.sumOee += shift.oee
+    existing.sumAvailability += shift.availability
+    existing.sumPerformance += shift.performance
+    existing.sumRunSeconds += shift.uptimeRunSeconds
+    existing.sumPlannedSeconds += shift.uptimePlannedSeconds
+    existing.totalBales += shift.totalBales
+    existing.totalStopSeconds += shift.stopSeconds
+    existing.totalStopCount += shift.stopCount
+    buckets.set(shift.shiftType, existing)
+  }
+
+  return Array.from(buckets.entries()).map(([shiftType, b]) => ({
+    shiftType,
+    shiftCount: b.shiftCount,
+    avgOee: b.shiftCount > 0 ? b.sumOee / b.shiftCount : 0,
+    avgAvailability: b.shiftCount > 0 ? b.sumAvailability / b.shiftCount : 0,
+    avgPerformance: b.shiftCount > 0 ? b.sumPerformance / b.shiftCount : 0,
+    // weighted avg uptime: sum(run)/sum(planned) across shiftType
+    avgUptimePct: b.sumPlannedSeconds > 0 ? b.sumRunSeconds / b.sumPlannedSeconds : 0,
+    totalBales: b.totalBales,
+    totalStopSeconds: b.totalStopSeconds,
+    totalStopCount: b.totalStopCount,
+  }))
+})
+
+/**
+ * Returns average bunker current draw for a single historical shift as an energy proxy.
+ * Returns null if no bunker machine or shift not found for this tenant+plant.
+ */
+export const getShiftEnergyProxy = cache(async (
+  plantId: number,
+  shiftId: number,
+): Promise<ShiftEnergyProxy | null> => {
+  const session = await verifySession()
+
+  // Fetch shift (tenant+plant scoped — cross-tenant guard)
+  const [shift] = await db
+    .select({ startAt: shifts.startAt, endAt: shifts.endAt })
+    .from(shifts)
+    .where(
+      and(
+        eq(shifts.id, shiftId),
+        eq(shifts.tenantId, session.tenantId),
+        eq(shifts.plantId, plantId),
+      )
+    )
+    .limit(1)
+  if (!shift) return null
+
+  // Find the bunker machine for this plant+tenant
+  const [bunker] = await db
+    .select({ id: machines.id, nominalCurrentA: machines.nominalCurrentA })
+    .from(machines)
+    .where(
+      and(
+        eq(machines.plantId, plantId),
+        eq(machines.tenantId, session.tenantId),
+        eq(machines.type, 'bunker'),
+      )
+    )
+    .limit(1)
+  if (!bunker) return null
+
+  // Aggregate avg current and reading count for this shift window
+  const [result] = await db
+    .select({
+      avgCurrentA: sql<number>`round(avg(${timeSeriesReadings.currentA}), 2)`,
+      readingCount: sql<number>`count(*)`,
+    })
+    .from(timeSeriesReadings)
+    .where(
+      and(
+        eq(timeSeriesReadings.machineId, bunker.id),
+        eq(timeSeriesReadings.tenantId, session.tenantId),
+        gte(timeSeriesReadings.recordedAt, shift.startAt),
+        lt(timeSeriesReadings.recordedAt, shift.endAt),
+      )
+    )
+
+  return {
+    avgCurrentA: result?.avgCurrentA ?? null,
+    nominalCurrentA: bunker.nominalCurrentA,
+    readingCount: Number(result?.readingCount ?? 0),
   }
 })
