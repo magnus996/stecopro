@@ -81,7 +81,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Date-range report shows production totals, uptime, and OEE trend
   5. Downtime Pareto ranks stop reasons by total duration and count
   6. Report data exports to CSV
-**Plans**: TBD during planning
+**Plans**: 3 plans
+- [ ] 04-01-PLAN.md — Report DAL accessors (shift list/detail, Pareto, bales-per-day, day-vs-evening, energy proxy) + vitest invariants (cartesian avoidance, OEE consistency)
+- [ ] 04-02-PLAN.md — Shift reports area: /reports/shifts list + /reports/shifts/[shiftId] detail (OEE, stops, bales, energy) + E2E
+- [ ] 04-03-PLAN.md — Analysis page /reports (OEE trend, Pareto, bales-per-day, day-vs-evening) + CSV export (semicolon+BOM) + operator role gate + E2E
 
 ### Phase 5: Administration & Demo Polish
 **Goal**: The demo is self-contained: admins manage users/tenants/plants and the demo dataset sells the product
@@ -105,7 +108,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Foundation | 4/4 | Complete | 2026-06-11 |
 | 2. Simulator & Ingest | 4/4 | Complete | 2026-06-11 |
 | 3. Live Dashboard | 0/4 | Planned | - |
-| 4. Shift Reports & Analysis | 0/? | Not started | - |
+| 4. Shift Reports & Analysis | 0/3 | Planned | - |
 | 5. Administration & Demo Polish | 0/? | Not started | - |
 
 ---
