@@ -48,7 +48,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. Bale events accumulate per fraction (Deink, Tetra/emballasjepapp, OCC, Miks) at plausible rates
   6. With the app running, new data appears continuously (live mode)
 **Plans**: 4 plans
-- [ ] 02-01-PLAN.md — Ingest interface + SQLite adapter + WAL pragmas on app DB
+- [x] 02-01-PLAN.md — Ingest interface + SQLite adapter + WAL pragmas on app DB
 - [ ] 02-02-PLAN.md — TDD: pure state-machine engine (params, Oslo shift attribution, ~90% availability, idle≠fault)
 - [ ] 02-03-PLAN.md — Runner + db:simulate backfill (14 days through ingest) + verify-backfill.sh
 - [ ] 02-04-PLAN.md — Live mode via instrumentation.ts (catch-up + 60s tick) + verify-live.sh
@@ -99,7 +99,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 4/4 | Complete | 2026-06-11 |
-| 2. Simulator & Ingest | 0/? | Not started | - |
+| 2. Simulator & Ingest | 1/4 | In progress | - |
 | 3. Live Dashboard | 0/? | Not started | - |
 | 4. Shift Reports & Analysis | 0/? | Not started | - |
 | 5. Administration & Demo Polish | 0/? | Not started | - |

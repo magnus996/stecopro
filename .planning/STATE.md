@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-06-11)
 
 ## Current Position
 
-Phase: 1 of 5 (Foundation) — COMPLETE, verified
-Plan: 4 of 4 complete
-Status: Phase complete, ready to plan Phase 2
-Last activity: 2026-06-11 — Phase 1 verified (01-VERIFICATION.md: passed, 16/16 E2E)
+Phase: 2 of 5 (Simulator & Ingest) — In progress
+Plan: 1 of 4 complete (plan 02-01 done; 02-02 in parallel execution)
+Status: In progress
+Last activity: 2026-06-11 — Completed 02-01-PLAN.md (ingest interface + SQLite adapter + WAL)
 
-Progress: [████░░░░░░] ~20% of milestone (4 plans complete, phases 2–5 unplanned)
+Progress: [████▌░░░░░] ~25% of milestone (5 plans complete: 4 foundation + 02-01)
 
 ## Performance Metrics
 
@@ -54,6 +54,9 @@ Recent decisions affecting current work:
 - proxy.ts must be in src/ (not project root) for Turbopack detection in src/-layout projects
 - Proxy uses req.cookies (not cookies() API) to read session in proxy/middleware context
 - Login page split: Server Component (page.tsx with force-dynamic) + Client Component (LoginForm.tsx)
+- IngestAdapter is write-only interface; implementations receive Drizzle db in constructor (not @/db/index which is server-only)
+- SqliteIngestAdapter.flush() uses db.transaction(tx => {...}) callback form — NOT IIFE pattern
+- WAL mode + busy_timeout=5000 + synchronous=NORMAL added to src/db/index.ts for concurrent simulator access
 
 ### Pending Todos
 
@@ -72,8 +75,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-10T23:15:17Z
-Stopped at: Completed 01-03-PLAN.md
+Last session: 2026-06-11T06:26:10Z
+Stopped at: Completed 02-01-PLAN.md
 Resume file: None
 
 ---
