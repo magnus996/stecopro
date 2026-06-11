@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-06-11)
 ## Current Position
 
 Phase: 5 of 5 (Administration & Demo Polish) — In progress
-Plan: 05-01 and 05-02 complete (parallel wave)
+Plan: 05-01, 05-02, and 05-04 complete
 Status: In progress
-Last activity: 2026-06-11 — Completed 05-01-PLAN.md (demo seed polish) and 05-02-PLAN.md (admin DAL accessors)
+Last activity: 2026-06-11 — Completed 05-04-PLAN.md (user management pages + actions)
 
 Progress: [████████░░] ~80% of milestone (15 plans complete, phase 5 unplanned)
 
