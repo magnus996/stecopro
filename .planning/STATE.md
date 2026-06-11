@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-06-11)
 
 ## Current Position
 
-Phase: 2 of 5 (Simulator & Ingest) — COMPLETE, verified
-Plan: 4 of 4 complete
-Status: Phase complete, ready to plan Phase 3
-Last activity: 2026-06-11 — Phase 2 verified (02-VERIFICATION.md: passed, 6/6 must-haves)
+Phase: 3 of 5 (Live Dashboard) — In progress
+Plan: 1 of N complete
+Status: In progress
+Last activity: 2026-06-11 — Completed 03-01-PLAN.md (shared time helpers + recharts install)
 
-Progress: [████░░░░░░] ~40% of milestone (8 plans complete, phases 3-5 unplanned)
+Progress: [█████░░░░░] ~45% of milestone (9 plans complete, phases 3-5 partially planned)
 
 ## Performance Metrics
 
@@ -67,6 +67,8 @@ Recent decisions affecting current work:
 - instrumentationHook flag NOT added to next.config.ts — deprecated/auto-enabled in Next.js 16.2.9
 - recordedAt stored as Unix seconds in better-sqlite3 (integer/timestamp mode) — multiply by 1000 for epoch ms
 - Live mode catch-up uses capped gap window (MAX_CATCHUP_MS=24h) to avoid re-generating full history
+- src/lib/time.ts is canonical home for Oslo shift helpers; src/lib/simulator/time.ts re-exports (backward compat)
+- recharts 3.x installs cleanly with React 19 — no --legacy-peer-deps needed
 
 ### Pending Todos
 
@@ -85,8 +87,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-11T07:09:06Z
-Stopped at: Completed 02-04-PLAN.md (live simulator mode) — Phase 2 complete
+Last session: 2026-06-11T07:42:19Z
+Stopped at: Completed 03-01-PLAN.md (shared time helpers + recharts) — Phase 3 plan 1 complete
 Resume file: None
 
 ---
