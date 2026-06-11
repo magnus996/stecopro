@@ -162,3 +162,92 @@ export const baleShipments = table('bale_shipments', {
   index('bale_shipments_tenant_idx').on(t.tenantId),
   index('bale_shipments_fraction_idx').on(t.fractionId),
 ])
+
+// ---------------------------------------------------------------------------
+// Phase 7: PWA operator tables
+// ---------------------------------------------------------------------------
+
+// push_subscriptions — Web Push subscription registrations per user/device
+// endpoint is UNIQUE (upsert on re-subscribe from same device)
+// ---------------------------------------------------------------------------
+export const pushSubscriptions = table('push_subscriptions', {
+  id: int().primaryKey({ autoIncrement: true }),
+  tenantId: int('tenant_id').notNull().references(() => tenants.id),
+  userId: int('user_id').notNull().references(() => users.id),
+  endpoint: text().notNull(),
+  p256dh: text().notNull(),
+  auth: text().notNull(),
+  userAgent: text('user_agent'),
+  createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  uniqueIndex('push_subscriptions_endpoint_idx').on(t.endpoint),
+  index('push_subscriptions_tenant_idx').on(t.tenantId),
+])
+
+// ---------------------------------------------------------------------------
+// photos — uploaded operator photos; files stored under ./uploads/{tenantId}/
+// Served only via authenticated GET /api/photos/[id] with tenant check
+// ---------------------------------------------------------------------------
+export const photos = table('photos', {
+  id: int().primaryKey({ autoIncrement: true }),
+  tenantId: int('tenant_id').notNull().references(() => tenants.id),
+  userId: int('user_id').notNull().references(() => users.id),
+  filePath: text('file_path').notNull(),
+  mimeType: text('mime_type').notNull(),
+  sizeBytes: int('size_bytes').notNull(),
+  createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  index('photos_tenant_idx').on(t.tenantId),
+])
+
+// ---------------------------------------------------------------------------
+// stop_acknowledgements — idempotent ack per user+stop (REPT-01)
+// UNIQUE(stopEventId, userId) enforces one ack per user per stop
+// ---------------------------------------------------------------------------
+export const stopAcknowledgements = table('stop_acknowledgements', {
+  id: int().primaryKey({ autoIncrement: true }),
+  tenantId: int('tenant_id').notNull().references(() => tenants.id),
+  stopEventId: int('stop_event_id').notNull().references(() => stopEvents.id),
+  userId: int('user_id').notNull().references(() => users.id),
+  createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  uniqueIndex('stop_ack_event_user_idx').on(t.stopEventId, t.userId),
+  index('stop_ack_tenant_idx').on(t.tenantId),
+])
+
+// ---------------------------------------------------------------------------
+// stop_comments — operator comments and/or stop reason corrections (REPT-02)
+// comment OR correctedReason required — enforced by Zod at API layer (07-04)
+// photoId is nullable FK to photos (photos declared above)
+// ---------------------------------------------------------------------------
+export const stopComments = table('stop_comments', {
+  id: int().primaryKey({ autoIncrement: true }),
+  tenantId: int('tenant_id').notNull().references(() => tenants.id),
+  stopEventId: int('stop_event_id').notNull().references(() => stopEvents.id),
+  userId: int('user_id').notNull().references(() => users.id),
+  comment: text(),
+  correctedReason: text('corrected_reason'),
+  photoId: int('photo_id').references(() => photos.id),
+  createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  index('stop_comments_event_idx').on(t.stopEventId),
+  index('stop_comments_tenant_idx').on(t.tenantId),
+])
+
+// ---------------------------------------------------------------------------
+// shift_notes — free-text shift notes per plant (REPT-03)
+// No shiftId FK — shift derived from plantId+createdAt via src/lib/time.ts
+// photoId is nullable FK to photos
+// ---------------------------------------------------------------------------
+export const shiftNotes = table('shift_notes', {
+  id: int().primaryKey({ autoIncrement: true }),
+  tenantId: int('tenant_id').notNull().references(() => tenants.id),
+  plantId: int('plant_id').notNull().references(() => plants.id),
+  userId: int('user_id').notNull().references(() => users.id),
+  content: text().notNull(),
+  photoId: int('photo_id').references(() => photos.id),
+  createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  index('shift_notes_plant_time_idx').on(t.plantId, t.createdAt),
+  index('shift_notes_tenant_idx').on(t.tenantId),
+])
