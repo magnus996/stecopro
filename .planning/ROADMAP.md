@@ -47,7 +47,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Dosing bunker current draw shows refill/decay cycles; bunker-empty periods (~15 min after last refill) register as idle, not fault
   5. Bale events accumulate per fraction (Deink, Tetra/emballasjepapp, OCC, Miks) at plausible rates
   6. With the app running, new data appears continuously (live mode)
-**Plans**: TBD during planning
+**Plans**: 4 plans
+- [ ] 02-01-PLAN.md — Ingest interface + SQLite adapter + WAL pragmas on app DB
+- [ ] 02-02-PLAN.md — TDD: pure state-machine engine (params, Oslo shift attribution, ~90% availability, idle≠fault)
+- [ ] 02-03-PLAN.md — Runner + db:simulate backfill (14 days through ingest) + verify-backfill.sh
+- [ ] 02-04-PLAN.md — Live mode via instrumentation.ts (catch-up + 60s tick) + verify-live.sh
 
 ### Phase 3: Live Dashboard
 **Goal**: An operator sees what the plant is doing right now without walking the floor
