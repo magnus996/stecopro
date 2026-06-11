@@ -23,6 +23,7 @@ import {
   timeSeriesReadings,
 } from '@/db/schema'
 import { SqliteIngestAdapter } from '@/lib/ingest/sqlite-adapter'
+import { NotifyingAdapter } from '@/lib/ingest/notifying-adapter'
 import { advanceLiveTick, runBackfill, type SimContext } from './runner'
 
 // Module-level interval handle (single reference, instrumentation guard prevents duplicates)
@@ -115,7 +116,10 @@ export function startLive(): void {
     fractionIds: fractionByName,
   }
 
+  // Plain adapter for backfill (catch-up must NEVER notify — no storm on restart)
   const adapter = new SqliteIngestAdapter(db, tenantId)
+  // Notifying adapter for the live interval tick ONLY
+  const notifyingAdapter = new NotifyingAdapter(adapter, db, { tenantId, plantId: plant.id, plantName: plant.name })
 
   // ── Catch-up ──────────────────────────────────────────────────────────────
   // Read MAX(recordedAt) — column is camelCase (Drizzle maps to "recordedAt")
@@ -153,8 +157,8 @@ export function startLive(): void {
   // ── Tick every 60 s ───────────────────────────────────────────────────────
   intervalHandle = setInterval(() => {
     try {
-      advanceLiveTick(adapter, ctx, new Date())
-      adapter.flush()
+      advanceLiveTick(notifyingAdapter, ctx, new Date())
+      notifyingAdapter.flush()
     } catch (e) {
       console.error('[simulator] live tick failed', e)
     }
