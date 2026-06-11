@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-06-11)
 ## Current Position
 
 Phase: 3 of 5 (Live Dashboard) — In progress
-Plan: 1 of N complete
+Plan: 2 of N complete
 Status: In progress
-Last activity: 2026-06-11 — Completed 03-01-PLAN.md (shared time helpers + recharts install)
+Last activity: 2026-06-11 — Completed 03-02-PLAN.md (shared OEE calculation module)
 
-Progress: [█████░░░░░] ~45% of milestone (9 plans complete, phases 3-5 partially planned)
+Progress: [█████░░░░░] ~45% of milestone (10 plans complete, phases 3-5 partially planned)
 
 ## Performance Metrics
 
@@ -69,6 +69,10 @@ Recent decisions affecting current work:
 - Live mode catch-up uses capped gap window (MAX_CATCHUP_MS=24h) to avoid re-generating full history
 - src/lib/time.ts is canonical home for Oslo shift helpers; src/lib/simulator/time.ts re-exports (backward compat)
 - recharts 3.x installs cleanly with React 19 — no --legacy-peer-deps needed
+- calculateOee in src/lib/oee.ts is the single OEE source of truth for Phase 3 + Phase 4
+- QUALITY_FACTOR=0.95 hardcoded in oee.ts; Phase 5 adds per-plant override
+- nowMs explicit parameter in calculateOee — avoids Date.now() nondeterminism in tests
+- stopType (fault/idle/planned) does NOT change OEE math — all reduce availability equally
 
 ### Pending Todos
 
@@ -87,8 +91,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-11T07:42:19Z
-Stopped at: Completed 03-01-PLAN.md (shared time helpers + recharts) — Phase 3 plan 1 complete
+Last session: 2026-06-11T07:43:50Z
+Stopped at: Completed 03-02-PLAN.md (shared OEE calculation module) — Phase 3 plan 2 complete
 Resume file: None
 
 ---
