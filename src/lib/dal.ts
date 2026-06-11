@@ -341,6 +341,265 @@ export interface DashboardData {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Report/Analysis accessors — Phase 4
+// All accept plantId (and shiftId where relevant); tenantId is NEVER a parameter.
+// OEE for every historical shift is computed via calculateOee with nowMs=shiftEnd.
+// Stops and bales are ALWAYS fetched in separate queries (see RESEARCH Pitfall 1).
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Exported interfaces for report accessors
+// ---------------------------------------------------------------------------
+
+export interface ShiftReportRow {
+  id: number
+  shiftType: string
+  startAt: Date
+  endAt: Date
+  oee: number
+  availability: number
+  performance: number
+  uptimeRunSeconds: number
+  uptimePlannedSeconds: number
+  stopCount: number
+  stopSeconds: number
+  totalBales: number
+}
+
+export interface ShiftReportDetail {
+  shift: { id: number; shiftType: string; startAt: Date; endAt: Date }
+  oee: OeeResult
+  stops: { startAt: Date; endAt: Date | null; reason: string | null; stopType: string }[]
+  balesByFraction: { fractionId: number; name: string; count: number }[]
+  totalBales: number
+}
+
+export interface ParetoRow {
+  reason: string
+  stopType: string
+  incidentCount: number
+  totalSeconds: number
+}
+
+export interface BalesPerDayRow {
+  osloDate: string
+  fractionId: number
+  fractionName: string
+  count: number
+}
+
+export interface ShiftComparisonRow {
+  shiftType: string
+  shiftCount: number
+  avgOee: number
+  avgAvailability: number
+  avgPerformance: number
+  avgUptimePct: number
+  totalBales: number
+  totalStopSeconds: number
+  totalStopCount: number
+}
+
+export interface ShiftEnergyProxy {
+  avgCurrentA: number | null
+  nominalCurrentA: number | null
+  readingCount: number
+}
+
+/**
+ * Returns all historical shifts in [fromDate, toDate] (Oslo calendar dates) for the plant,
+ * with per-shift OEE computed via calculateOee. Stops and bales are fetched in SEPARATE
+ * queries (see RESEARCH Pitfall 1 — combined LEFT JOIN produces cartesian product).
+ */
+export const getShiftReportList = cache(async (
+  plantId: number,
+  fromDate: string,  // Oslo 'YYYY-MM-DD'
+  toDate: string,    // Oslo 'YYYY-MM-DD'
+): Promise<ShiftReportRow[]> => {
+  const session = await verifySession()
+  const { startMs: fromMs } = getShiftBoundsUtc(fromDate, 'day')
+  const { endMs: toMs } = getShiftBoundsUtc(toDate, 'evening')
+
+  // Query A: all shifts in range, ordered reverse-chronological for the list
+  const shiftRows = await db
+    .select({
+      id: shifts.id,
+      shiftType: shifts.shiftType,
+      startAt: shifts.startAt,
+      endAt: shifts.endAt,
+    })
+    .from(shifts)
+    .where(
+      and(
+        eq(shifts.tenantId, session.tenantId),
+        eq(shifts.plantId, plantId),
+        gte(shifts.startAt, new Date(fromMs)),
+        lte(shifts.startAt, new Date(toMs)),
+      )
+    )
+    .orderBy(desc(shifts.startAt))
+
+  if (shiftRows.length === 0) return []
+
+  // Query B: all stop events overlapping the date range, then bucket by shift in JS
+  const allStops = await db
+    .select({
+      startAt: stopEvents.startAt,
+      endAt: stopEvents.endAt,
+      stopType: stopEvents.stopType,
+      reason: stopEvents.reason,
+    })
+    .from(stopEvents)
+    .where(
+      and(
+        eq(stopEvents.tenantId, session.tenantId),
+        eq(stopEvents.plantId, plantId),
+        lt(stopEvents.startAt, new Date(toMs)),
+        or(
+          isNull(stopEvents.endAt),
+          gt(stopEvents.endAt, new Date(fromMs)),
+        ),
+      )
+    )
+
+  // Query C: all bale events in range, then bucket by shift in JS
+  const allBales = await db
+    .select({
+      occurredAt: baleEvents.occurredAt,
+      fractionId: baleEvents.fractionId,
+    })
+    .from(baleEvents)
+    .where(
+      and(
+        eq(baleEvents.tenantId, session.tenantId),
+        eq(baleEvents.plantId, plantId),
+        gte(baleEvents.occurredAt, new Date(fromMs)),
+        lt(baleEvents.occurredAt, new Date(toMs)),
+      )
+    )
+
+  // Compute per-shift OEE by bucketing stops and bales in JS
+  return shiftRows.map(shift => {
+    const shiftStartMs = shift.startAt.getTime()
+    const shiftEndMs = shift.endAt.getTime()
+
+    // Bucket stops: overlap [shiftStart, shiftEnd)
+    const shiftStops = allStops.filter(s => {
+      const stopStartMs = s.startAt.getTime()
+      const stopEndMs = s.endAt ? s.endAt.getTime() : shiftEndMs
+      return stopStartMs < shiftEndMs && stopEndMs > shiftStartMs
+    })
+
+    // Bucket bales: occurredAt in [shiftStart, shiftEnd)
+    const shiftBales = allBales.filter(b => {
+      const bMs = b.occurredAt.getTime()
+      return bMs >= shiftStartMs && bMs < shiftEndMs
+    })
+
+    const baleCount = shiftBales.length
+
+    const oeeResult = calculateOee({
+      shiftStart: shift.startAt,
+      shiftEnd: shift.endAt,
+      nowMs: shiftEndMs,  // historical shift: fully elapsed
+      stopEvents: shiftStops.map(s => ({
+        startAt: s.startAt,
+        endAt: s.endAt,
+        stopType: s.stopType as 'fault' | 'idle' | 'planned',
+      })),
+      baleCount,
+      nominalBalesPerShift: NOMINAL_BALES_PER_SHIFT,
+      qualityFactor: QUALITY_FACTOR,
+    })
+
+    return {
+      id: shift.id,
+      shiftType: shift.shiftType,
+      startAt: shift.startAt,
+      endAt: shift.endAt,
+      oee: oeeResult.oee,
+      availability: oeeResult.availability,
+      performance: oeeResult.performance,
+      uptimeRunSeconds: oeeResult.runSeconds,
+      uptimePlannedSeconds: oeeResult.plannedSeconds,
+      stopCount: shiftStops.filter(s => s.endAt !== null).length,
+      stopSeconds: oeeResult.stopSeconds,
+      totalBales: baleCount,
+    }
+  })
+})
+
+/**
+ * Returns full detail for a single historical shift: OEE breakdown, stop list,
+ * bales per fraction, and total bales. Returns null if shiftId not found for this
+ * tenant+plant (prevents cross-tenant access — RESEARCH Pitfall 6).
+ */
+export const getShiftReportDetail = cache(async (
+  plantId: number,
+  shiftId: number,
+): Promise<ShiftReportDetail | null> => {
+  const session = await verifySession()
+
+  const [shift] = await db
+    .select()
+    .from(shifts)
+    .where(
+      and(
+        eq(shifts.id, shiftId),
+        eq(shifts.tenantId, session.tenantId),
+        eq(shifts.plantId, plantId),
+      )
+    )
+    .limit(1)
+
+  if (!shift) return null
+
+  // Reuse existing tenant-scoped stop and bale accessors
+  const [stopRows, baleRows] = await Promise.all([
+    getShiftStops(plantId, shift.startAt, shift.endAt),
+    getBaleCountsByFraction(plantId, shift.startAt, shift.endAt),
+  ])
+
+  const totalBales = baleRows.reduce((sum, r) => sum + Number(r.count), 0)
+
+  const oeeResult = calculateOee({
+    shiftStart: shift.startAt,
+    shiftEnd: shift.endAt,
+    nowMs: shift.endAt.getTime(),  // historical shift: fully elapsed
+    stopEvents: stopRows.map(s => ({
+      startAt: s.startAt,
+      endAt: s.endAt,
+      stopType: s.stopType as 'fault' | 'idle' | 'planned',
+    })),
+    baleCount: totalBales,
+    nominalBalesPerShift: NOMINAL_BALES_PER_SHIFT,
+    qualityFactor: QUALITY_FACTOR,
+  })
+
+  return {
+    shift: {
+      id: shift.id,
+      shiftType: shift.shiftType,
+      startAt: shift.startAt,
+      endAt: shift.endAt,
+    },
+    oee: oeeResult,
+    stops: stopRows.map(s => ({
+      startAt: s.startAt,
+      endAt: s.endAt,
+      reason: s.reason,
+      stopType: s.stopType,
+    })),
+    balesByFraction: baleRows.map(r => ({
+      fractionId: r.fractionId,
+      name: r.name,
+      count: Number(r.count),
+    })),
+    totalBales,
+  }
+})
+
 /**
  * Composing accessor: returns the full dashboard payload for a single plant.
  * verifySession() is called here (and deduped via React.cache in sub-accessors)
