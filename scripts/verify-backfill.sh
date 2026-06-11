@@ -44,20 +44,27 @@ const db = new Database(dbPath, { readonly: true })
 //   shifts:               id, tenant_id, plant_id, shift_type, startAt, endAt
 //   bale_events:          id, tenant_id, plant_id, fraction_id, machine_id, occurredAt, weight_kg
 
+// Resolve tenant 1 (simulator tenant = 'Steco Demo') by slug
+const tenant1Row = db.prepare("SELECT id FROM tenants WHERE slug = 'steco-demo'").get() as any
+const t1 = tenant1Row?.id ?? 0
+
 // ── 1. SHIFT COUNT ──────────────────────────────────────────────────────────
-const shiftCount = (db.prepare('SELECT COUNT(*) AS n FROM shifts').get() as any).n
+// Scoped to tenant 1 (simulator) only — tenant 2 has static seed data
+const shiftCount = (db.prepare('SELECT COUNT(*) AS n FROM shifts WHERE tenant_id = ?').get(t1) as any).n
 const shiftPass  = shiftCount >= 26 && shiftCount <= 28
 console.log('ASSERT1|' + (shiftPass ? '1' : '0') + '|shifts=' + shiftCount + ' (expect 26-28)')
 
 // ── 2. MACHINE COVERAGE ─────────────────────────────────────────────────────
-const machineCount = (db.prepare('SELECT COUNT(DISTINCT machine_id) AS n FROM time_series_readings').get() as any).n
+// Scoped to tenant 1 machines only
+const machineCount = (db.prepare('SELECT COUNT(DISTINCT machine_id) AS n FROM time_series_readings WHERE tenant_id = ?').get(t1) as any).n
 const machinePass  = machineCount === 3
 console.log('ASSERT2|' + (machinePass ? '1' : '0') + '|distinct_machines=' + machineCount + ' (expect 3)')
 
 // ── 3. FRACTION COVERAGE ────────────────────────────────────────────────────
+// Scoped to tenant 1 bale_events only
 const fractionRows = db.prepare(
-  'SELECT fraction_id, COUNT(*) AS n FROM bale_events GROUP BY fraction_id'
-).all() as any[]
+  'SELECT fraction_id, COUNT(*) AS n FROM bale_events WHERE tenant_id = ? GROUP BY fraction_id'
+).all(t1) as any[]
 const fractionCount = fractionRows.length
 const allFractionsHaveBales = fractionRows.every((r: any) => r.n > 0)
 const fractionPass = fractionCount === 4 && allFractionsHaveBales
@@ -66,7 +73,8 @@ console.log('ASSERT3|' + (fractionPass ? '1' : '0') + '|fractions_with_bales=' +
 
 // ── 4. AVAILABILITY ─────────────────────────────────────────────────────────
 // Column is 'runState' (Drizzle camelCase, confirmed via PRAGMA table_info)
-const minMachineRow = db.prepare('SELECT MIN(machine_id) AS mid FROM time_series_readings').get() as any
+// Scoped to tenant 1 bunker machine
+const minMachineRow = db.prepare('SELECT MIN(machine_id) AS mid FROM time_series_readings WHERE tenant_id = ?').get(t1) as any
 const bunkerMachineId = minMachineRow.mid
 const totalReadings   = (db.prepare('SELECT COUNT(*) AS n FROM time_series_readings WHERE machine_id = ?').get(bunkerMachineId) as any).n
 const runReadings     = (db.prepare('SELECT COUNT(*) AS n FROM time_series_readings WHERE machine_id = ? AND "runState" = 1').get(bunkerMachineId) as any).n
@@ -77,11 +85,11 @@ console.log('ASSERT4|' + (availPass ? '1' : '0') + '|availability=' + (availabil
 // ── 5. IDLE NOT FAULT ───────────────────────────────────────────────────────
 // Column: stop_type (explicit snake_case alias in schema)
 const bunkerFaults = (db.prepare(
-  "SELECT COUNT(*) AS n FROM stop_events WHERE reason = 'Bunker tom' AND stop_type = 'fault'"
-).get() as any).n
+  "SELECT COUNT(*) AS n FROM stop_events WHERE tenant_id = ? AND reason = 'Bunker tom' AND stop_type = 'fault'"
+).get(t1) as any).n
 const idleCount = (db.prepare(
-  "SELECT COUNT(*) AS n FROM stop_events WHERE stop_type = 'idle'"
-).get() as any).n
+  "SELECT COUNT(*) AS n FROM stop_events WHERE tenant_id = ? AND stop_type = 'idle'"
+).get(t1) as any).n
 const idleNotFaultPass = bunkerFaults === 0 && idleCount > 0
 console.log('ASSERT5|' + (idleNotFaultPass ? '1' : '0') + '|bunker_faults=' + bunkerFaults + ' idle_stops=' + idleCount + ' (expect faults=0 idle>0)')
 
@@ -89,13 +97,20 @@ console.log('ASSERT5|' + (idleNotFaultPass ? '1' : '0') + '|bunker_faults=' + bu
 // Columns: "endAt", "startAt" (Drizzle camelCase, confirmed via PRAGMA table_info)
 // Stored as milliseconds since epoch (integer mode: 'timestamp' uses ms)
 const shortStops = (db.prepare(
-  'SELECT COUNT(*) AS n FROM stop_events WHERE "endAt" IS NOT NULL AND ("endAt" - "startAt") <= 600'
-).get() as any).n
+  'SELECT COUNT(*) AS n FROM stop_events WHERE tenant_id = ? AND "endAt" IS NOT NULL AND ("endAt" - "startAt") <= 600'
+).get(t1) as any).n
 const longStops  = (db.prepare(
-  'SELECT COUNT(*) AS n FROM stop_events WHERE "endAt" IS NOT NULL AND ("endAt" - "startAt") >= 1800'
-).get() as any).n
+  'SELECT COUNT(*) AS n FROM stop_events WHERE tenant_id = ? AND "endAt" IS NOT NULL AND ("endAt" - "startAt") >= 1800'
+).get(t1) as any).n
 const spreadPass = shortStops > longStops
 console.log('ASSERT6|' + (spreadPass ? '1' : '0') + '|short_stops=' + shortStops + ' long_stops=' + longStops + ' (expect short > long)')
+
+// ── 7. BALE VOLUME ──────────────────────────────────────────────────────────
+// ~135 bales/day × ~14 days; wide band because oldest boundary varies and most-recent day is partial
+// Scoped to tenant 1 only (tenant 2 static seed data excluded)
+const totalBales = (db.prepare('SELECT COUNT(*) AS n FROM bale_events WHERE tenant_id = ?').get(t1) as any).n
+const balesPass = totalBales >= 1400 && totalBales <= 2200
+console.log('ASSERT7|' + (balesPass ? '1' : '0') + '|total_bales=' + totalBales + ' (expect 1400-2200 over ~14 days)')
 
 db.close()
 TSEOF
@@ -140,6 +155,9 @@ while IFS= read -r line; do
     val=$(echo "$line" | cut -d'|' -f2)
     detail=$(echo "$line" | cut -d'|' -f3-)
     check "$val" "6. Stop spread: $detail"
+  elif [[ "$line" == ASSERT7\|* ]]; then
+    val=$(echo "$line" | cut -d'|' -f2); detail=$(echo "$line" | cut -d'|' -f3-)
+    check "$val" "7. Bale volume: $detail"
   fi
 done <<< "$RESULT"
 

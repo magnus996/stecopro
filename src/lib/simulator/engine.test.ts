@@ -196,4 +196,29 @@ describe('simulateShift', () => {
     })
     expect(events1).not.toEqual(events2)
   })
+
+  it('CURRENT_BANDS: bunker readings are 0, or 4-6 (empty), or 10-15 (loaded)', () => {
+    const events = simulateShift({ startMs: dayBounds.startMs, endMs: dayBounds.endMs, seed: 42 })
+    const bunker = events.filter(e => e.type === 'reading' && e.machineId === 0)
+    for (const r of bunker) {
+      if (r.type !== 'reading') continue
+      const a = r.currentA
+      const ok = a === 0 || (a >= 4 && a <= 6) || (a >= 10 && a <= 15)
+      expect(ok).toBe(true)
+    }
+  })
+
+  it('BALE_MIX: deink is the largest fraction and total is plausible (~70-90 for an 8h shift)', () => {
+    const events = simulateShift({ startMs: dayBounds.startMs, endMs: dayBounds.endMs, seed: 42 })
+    const bales = events.filter(e => e.type === 'bale')
+    const byFrac = [0, 0, 0, 0]
+    for (const b of bales) if (b.type === 'bale') byFrac[b.fractionId]++
+    const total = byFrac.reduce((s, n) => s + n, 0)
+    // engine order [deink, occ, tetra, miks]; deink (40) must dominate
+    expect(byFrac[0]).toBeGreaterThan(byFrac[1])
+    expect(byFrac[0]).toBeGreaterThan(byFrac[2])
+    expect(byFrac[0]).toBeGreaterThanOrEqual(byFrac[3])
+    expect(total).toBeGreaterThanOrEqual(60)
+    expect(total).toBeLessThanOrEqual(95)
+  })
 })

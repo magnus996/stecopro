@@ -313,9 +313,9 @@ export const getBunkerCurrentDraw = cache(async (
     .orderBy(asc(timeSeriesReadings.recordedAt))
 })
 
-// Nominal bales per 8h shift = sum of per-fraction rates from params.ts:
-// BALE_RATES_PER_SHIFT = { deink:45, occ:35, tetra:25, miks:15 } => 120 total
-const NOMINAL_BALES_PER_SHIFT = 120
+// Nominal bales per 8h shift = sum of BALE_RATES_PER_SHIFT
+// (deink 40 + occ 8 + tetra 6 + miks 26 = 80).
+const NOMINAL_BALES_PER_SHIFT = 80
 
 // Plant state string enum — maps to Norwegian UI labels in plan 04
 export type PlantState = 'running' | 'running_empty' | 'stopped' | 'outside_shift' | 'no_data'
