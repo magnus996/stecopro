@@ -9,4 +9,10 @@ import * as schema from './schema'
 // connections are cheap, that's acceptable.
 const sqlite = new Database(process.env.DB_FILE_NAME ?? './stecopro.db')
 
+// WAL mode: allows concurrent reads during writes (needed when live simulator writes
+// while dashboard reads). busy_timeout prevents SQLITE_BUSY on contention.
+sqlite.pragma('journal_mode = WAL')
+sqlite.pragma('busy_timeout = 5000')
+sqlite.pragma('synchronous = NORMAL')
+
 export const db = drizzle(sqlite, { schema })
