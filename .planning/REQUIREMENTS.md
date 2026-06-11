@@ -167,24 +167,24 @@ Which phases cover which requirements. Updated during roadmap creation.
 ## v1.2 Requirements (Phase 7 — PWA Operator Companion)
 
 ### PWA & Notifications
-- [ ] **PWAS-01**: App is installable as PWA (manifest, icons, service worker) with logged-in registration
-- [ ] **NOTI-01**: Push notifications on fault stops and 'Bunker tom' (never planned stops), with VAPID web-push pipeline, per-device subscriptions, throttling and dead-subscription pruning
-- [ ] **NOTI-02**: /varsler page lists recent notifiable stops (48h) with acknowledgement status and a push enable/disable toggle
+- [x] **PWAS-01**: App is installable as PWA (manifest, icons, service worker) with logged-in registration
+- [x] **NOTI-01**: Push notifications on fault stops and 'Bunker tom' (never planned stops), with VAPID web-push pipeline, per-device subscriptions, throttling and dead-subscription pruning
+- [x] **NOTI-02**: /varsler page lists recent notifiable stops (48h) with acknowledgement status and a push enable/disable toggle
 
 ### In-shift Reporting
-- [ ] **REPT-01**: Operators acknowledge alarms; acknowledgements visible to the team (idempotent per user+stop)
-- [ ] **REPT-02**: Operators comment on stops and optionally correct the stop reason
-- [ ] **REPT-03**: Operators write free-text shift notes (logbook) per plant
-- [ ] **REPT-04**: Photos can be attached to stop comments and shift notes (mobile camera capture, ≤10MB, tenant-scoped serving)
+- [x] **REPT-01**: Operators acknowledge alarms; acknowledgements visible to the team (idempotent per user+stop)
+- [x] **REPT-02**: Operators comment on stops and optionally correct the stop reason
+- [x] **REPT-03**: Operators write free-text shift notes (logbook) per plant
+- [x] **REPT-04**: Photos can be attached to stop comments and shift notes (mobile camera capture, ≤10MB, tenant-scoped serving)
 
 ### Traceability (v1.2)
 
 | Req ID | Phase | Status |
 |--------|-------|--------|
-| PWAS-01 | Phase 7 | Pending |
-| NOTI-01 | Phase 7 | Pending |
-| NOTI-02 | Phase 7 | Pending |
-| REPT-01 | Phase 7 | Pending |
-| REPT-02 | Phase 7 | Pending |
-| REPT-03 | Phase 7 | Pending |
-| REPT-04 | Phase 7 | Pending |
+| PWAS-01 | Phase 7 | Complete |
+| NOTI-01 | Phase 7 | Complete |
+| NOTI-02 | Phase 7 | Complete |
+| REPT-01 | Phase 7 | Complete |
+| REPT-02 | Phase 7 | Complete |
+| REPT-03 | Phase 7 | Complete |
+| REPT-04 | Phase 7 | Complete |

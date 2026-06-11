@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-06-11)
 
 **Core value:** Plant owners see exactly what their sorting plant is doing — uptime, OEE, stops with reasons, and bales produced per fraction — without walking the floor or reading PLC logs.
-**Current focus:** Phase 7 COMPLETE — all 5 plans executed; full PWA operator flow proven by e2e-phase7.sh
+**Current focus:** Phase 7 complete — PWA operator companion shipped
 
 ## Current Position
 
-Phase: 7 of 7 (PWA Operator)
-Plan: 5 of 5 in phase 7 — ALL COMPLETE
-Status: Phase complete / Milestone complete
-Last activity: 2026-06-11 — Completed 07-05-PLAN.md (operator UI, e2e-phase7.sh, README)
+Phase: 7 of 7 (PWA Operator Companion) — COMPLETE, verified
+Plan: 5 of 5 complete
+Status: All 7 phases complete and verified
+Last activity: 2026-06-11 — Phase 7 verified (07-VERIFICATION.md: passed, 6/6 criteria; e2e-phase7 29/29; all regressions green)
 
-Progress: [███████████] 100% (27 plans complete)
+Progress: [██████████] 100% (30 plans complete across 7 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 25
+- Total plans completed: 30
 - Average duration: ~10 min
 - Total execution time: ~101 min
 
@@ -135,4 +135,4 @@ Resume file: None
 
 ---
 *State initialized: 2026-06-11*
-*Next step: /gsd:complete-milestone — all 7 phases complete*
+*Next step: /gsd:audit-milestone or /gsd:complete-milestone*
