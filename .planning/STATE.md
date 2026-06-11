@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-06-11)
 
 ## Current Position
 
-Phase: 6 (Calibration, Branding & Inventory) — In progress
-Plan: 06-01 complete (calibration); 06-02 complete (branding); 06-03 complete (inventory backend)
-Status: In progress — wave-1 and first wave-2 plan complete
-Last activity: 2026-06-11 — Completed 06-03-PLAN.md (bale inventory backend)
+Phase: 6 (Calibration, Branding & Inventory) — COMPLETE
+Plan: 06-01 complete (calibration); 06-02 complete (branding); 06-03 complete (inventory backend); 06-04 complete (inventory UI + dashboard widgets)
+Status: Phase 6 complete — all 4 plans done
+Last activity: 2026-06-11 — Completed 06-04-PLAN.md (inventory UI + dashboard widgets)
 
-Progress: [██████████] 100% (21 plans complete across 5 phases)
+Progress: [██████████] 100% (25 plans complete across 6 phases)
 
 ## Performance Metrics
 
@@ -98,6 +98,9 @@ Recent decisions affecting current work:
 - Simulator cleanup scoped to tenantId (WHERE tenant_id = X) — global DELETE would wipe all tenant data including tenant 2 static rows
 - bale_shipments shippedAt/createdAt columns are camelCase in SQLite (no explicit column name in schema def) — raw SQL must quote them
 - seed-shipments ships 95% of produced bales so demo shows ~5% stock (tens of bales) after demo:setup
+- seed.ts cleanup must delete baleShipments before fractions/plants/tenants — FK constraint order (added 06-04)
+- ShipmentForm uses useActionState(registerShipment) pattern mirroring LoginForm; fraction select label shows on-hand stock
+- ProduksjonIDagChart reuses todayBales already computed in dashboard page — no extra DAL query needed
 - Stock query uses two separate queries merged in JS (avoids cartesian product, same anti-pattern as report queries)
 - getUsersForTenant scoped to session.tenantId even for system_admin — system_admin manages own tenant on /admin/users; cross-tenant user mgmt out of scope
 - system_admin cross-tenant DAL accessors (getTenantList, getTenantById, getSystemAdminPlants) guard role BEFORE bypassing tenant filter — role check is the security boundary
@@ -122,8 +125,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-11T14:42:00Z
-Stopped at: Completed 06-03-PLAN.md (bale inventory backend) — Phase 6 plan 3 complete
+Last session: 2026-06-11T14:50:17Z
+Stopped at: Completed 06-04-PLAN.md (inventory UI + dashboard widgets) — Phase 6 COMPLETE
 Resume file: None
 
 ---
