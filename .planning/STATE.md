@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-06-11)
 ## Current Position
 
 Phase: 6 (Calibration, Branding & Inventory) — In progress
-Plan: 06-01 complete (calibration); 06-02 complete (branding)
-Status: In progress — both wave-1 plans complete
-Last activity: 2026-06-11 — Completed 06-01-PLAN.md (simulator calibration) + 06-02-PLAN.md (branding)
+Plan: 06-01 complete (calibration); 06-02 complete (branding); 06-03 complete (inventory backend)
+Status: In progress — wave-1 and first wave-2 plan complete
+Last activity: 2026-06-11 — Completed 06-03-PLAN.md (bale inventory backend)
 
 Progress: [██████████] 100% (21 plans complete across 5 phases)
 
@@ -96,6 +96,9 @@ Recent decisions affecting current work:
 - Tenant 2 (Isolasjonstest) static data seeded in seed.ts (not simulator) — simulator targets plantRows[0] and only supports one plant
 - demo:setup npm script aliases db:seed && db:simulate as the salesperson-facing demo reset command
 - Simulator cleanup scoped to tenantId (WHERE tenant_id = X) — global DELETE would wipe all tenant data including tenant 2 static rows
+- bale_shipments shippedAt/createdAt columns are camelCase in SQLite (no explicit column name in schema def) — raw SQL must quote them
+- seed-shipments ships 95% of produced bales so demo shows ~5% stock (tens of bales) after demo:setup
+- Stock query uses two separate queries merged in JS (avoids cartesian product, same anti-pattern as report queries)
 - getUsersForTenant scoped to session.tenantId even for system_admin — system_admin manages own tenant on /admin/users; cross-tenant user mgmt out of scope
 - system_admin cross-tenant DAL accessors (getTenantList, getTenantById, getSystemAdminPlants) guard role BEFORE bypassing tenant filter — role check is the security boundary
 - getTenantById tenantId param is lookup key only (not security boundary); security = system_admin role check preceding the query
@@ -119,8 +122,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-11T09:23:36Z
-Stopped at: Completed 05-06-PLAN.md (full role walkthrough E2E) — Phase 5 plan 6 complete (ALL PLANS DONE)
+Last session: 2026-06-11T14:42:00Z
+Stopped at: Completed 06-03-PLAN.md (bale inventory backend) — Phase 6 plan 3 complete
 Resume file: None
 
 ---
