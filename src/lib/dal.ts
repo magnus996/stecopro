@@ -22,7 +22,7 @@ import { decrypt } from './session'
 import { db } from '@/db'
 import {
   users, plants, tenants,
-  shifts, stopEvents, baleEvents, machines, timeSeriesReadings, fractions,
+  shifts, stopEvents, baleEvents, machines, timeSeriesReadings, fractions, baleShipments,
 } from '@/db/schema'
 import { eq, and, lte, gt, gte, lt, desc, asc, isNull, isNotNull, or, sql } from 'drizzle-orm'
 import type { SessionPayload } from './definitions'
@@ -1287,4 +1287,92 @@ export const getSystemAdminPlants = cache(async (): Promise<SystemAdminPlantRow[
     .from(plants)
     .innerJoin(tenants, eq(tenants.id, plants.tenantId))
     .orderBy(asc(tenants.name), asc(plants.name))
+})
+
+// ---------------------------------------------------------------------------
+// Inventory accessors — Phase 6 plan 03
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns stock per fraction for the given plant.
+ * stock = produced bale_events − shipped baleCount (never below 0).
+ * Uses LEFT JOIN so zero-bale fractions always appear (same pattern as getBaleCountsByFraction).
+ */
+export const getStockByFraction = cache(async (plantId: number) => {
+  const session = await verifySession()
+  // produced counts — LEFT JOIN so zero-bale fractions still appear
+  const produced = await db
+    .select({
+      fractionId: fractions.id,
+      name: fractions.name,
+      sortOrder: fractions.sortOrder,
+      count: sql<number>`count(${baleEvents.id})`,
+    })
+    .from(fractions)
+    .leftJoin(
+      baleEvents,
+      and(
+        eq(baleEvents.fractionId, fractions.id),
+        eq(baleEvents.tenantId, session.tenantId),
+      ),
+    )
+    .where(
+      and(
+        eq(fractions.tenantId, session.tenantId),
+        eq(fractions.plantId, plantId),
+      )
+    )
+    .groupBy(fractions.id)
+    .orderBy(asc(fractions.sortOrder))
+
+  // shipped sums keyed by fractionId
+  const shippedRows = await db
+    .select({
+      fractionId: baleShipments.fractionId,
+      shipped: sql<number>`coalesce(sum(${baleShipments.baleCount}),0)`,
+    })
+    .from(baleShipments)
+    .where(
+      and(
+        eq(baleShipments.tenantId, session.tenantId),
+        eq(baleShipments.plantId, plantId),
+      )
+    )
+    .groupBy(baleShipments.fractionId)
+
+  const shippedMap = new Map(shippedRows.map(r => [r.fractionId, Number(r.shipped)]))
+  return produced.map(p => ({
+    fractionId: p.fractionId,
+    name: p.name,
+    sortOrder: p.sortOrder,
+    produced: Number(p.count),
+    shipped: shippedMap.get(p.fractionId) ?? 0,
+    stock: Math.max(0, Number(p.count) - (shippedMap.get(p.fractionId) ?? 0)),
+  }))
+})
+
+/**
+ * Returns the latest shipments (default 20) for a plant, newest first, with fraction name.
+ */
+export const getShipmentHistory = cache(async (plantId: number, limit = 20) => {
+  const session = await verifySession()
+  return db
+    .select({
+      id: baleShipments.id,
+      fractionId: baleShipments.fractionId,
+      fractionName: fractions.name,
+      baleCount: baleShipments.baleCount,
+      shippedAt: baleShipments.shippedAt,
+      note: baleShipments.note,
+    })
+    .from(baleShipments)
+    .innerJoin(fractions, eq(fractions.id, baleShipments.fractionId))
+    .where(
+      and(
+        eq(baleShipments.tenantId, session.tenantId),
+        eq(baleShipments.plantId, plantId),
+      )
+    )
+    .orderBy(desc(baleShipments.shippedAt))
+    .limit(limit)
 })
