@@ -159,7 +159,7 @@ describe('simulateShift', () => {
       seed: 42,
     })
 
-    const allReasons = new Set([...FAULT_REASONS, ...IDLE_REASONS, ...PLANNED_REASONS])
+    const allReasons = new Set<string>([...FAULT_REASONS, ...IDLE_REASONS, ...PLANNED_REASONS])
     const stopEvents = events.filter(e => e.type === 'stop')
 
     for (const event of stopEvents) {
