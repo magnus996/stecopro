@@ -1,5 +1,6 @@
 'use client'
 import { useActionState } from 'react'
+import Image from 'next/image'
 import { login } from '@/actions/auth'
 
 type FormState = {
@@ -15,7 +16,10 @@ export default function LoginForm() {
         <div className="rounded-2xl bg-white px-8 py-10 shadow-sm ring-1 ring-zinc-200">
           {/* Logo / title */}
           <div className="mb-8 text-center">
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">StecoPro</h1>
+            <div className="mx-auto mb-3 inline-flex rounded-lg bg-zinc-900 px-4 py-3">
+              <Image src="/logo-hvit.png" alt="Steco" width={170} height={36}
+                style={{ height: 'auto', width: '170px' }} priority />
+            </div>
             <p className="mt-1 text-sm text-zinc-500">Logg inn for å fortsette</p>
           </div>
 
