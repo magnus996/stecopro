@@ -96,7 +96,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Plant config (fractions, shift times, nominal capacity, machines) editable in UI
   4. Demo seed creates "Steco Demo" tenant with the returpapir plant plus a second tenant proving isolation
   5. A full demo walkthrough (login as each role → dashboard → shift report → downtime analysis → admin) works without touching code
-**Plans**: TBD during planning
+**Plans**: 6 plans
+- [ ] 05-01-PLAN.md — Demo seed polish: tenant 2 static plant/shift/bale data + demo:setup one-command (ADMN-04)
+- [ ] 05-02-PLAN.md — Admin DAL accessors (users, plant config, system-admin cross-tenant) in one dal.ts edit
+- [ ] 05-03-PLAN.md — Plant config UI (/admin/plant): capacity/fractions/machines editable, produksjonsleder+ gate (ADMN-01)
+- [ ] 05-04-PLAN.md — User management UI (/admin/users): create/edit/deactivate, bcrypt, admin+ gate (TENA-04, ADMN-02)
+- [ ] 05-05-PLAN.md — Tenant management UI (/admin/tenants): list/create tenants + plants, system_admin only (TENA-05, ADMN-03)
+- [ ] 05-06-PLAN.md — Full role-walkthrough + role-gate + user-CRUD E2E (success criterion 5)
 
 ## Progress
 
@@ -108,8 +114,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Foundation | 4/4 | Complete | 2026-06-11 |
 | 2. Simulator & Ingest | 4/4 | Complete | 2026-06-11 |
 | 3. Live Dashboard | 4/4 | Complete | 2026-06-11 |
-| 4. Shift Reports & Analysis | 1/3 | In progress | - |
-| 5. Administration & Demo Polish | 0/? | Not started | - |
+| 4. Shift Reports & Analysis | 3/3 | Complete | 2026-06-11 |
+| 5. Administration & Demo Polish | 0/6 | Planned | - |
 
 ---
 *Roadmap created: 2026-06-11*
