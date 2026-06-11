@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-06-11)
 
 ## Current Position
 
-Phase: 4 of 5 (Shift Reports & Analysis) — COMPLETE, verified
-Plan: 3 of 3 complete
-Status: Phase complete, ready to plan Phase 5
-Last activity: 2026-06-11 — Phase 4 verified (04-VERIFICATION.md: passed, 6/6 criteria)
+Phase: 5 of 5 (Administration & Demo Polish) — In progress
+Plan: 05-02 complete (parallel wave with 05-01)
+Status: In progress
+Last activity: 2026-06-11 — Completed 05-02-PLAN.md (admin DAL accessors)
 
 Progress: [████████░░] ~80% of milestone (15 plans complete, phase 5 unplanned)
 
@@ -93,6 +93,9 @@ Recent decisions affecting current work:
 - CSV route handler uses decrypt(cookie) directly → clean 401/403; verifySession() is wrong for API endpoints (redirects HTML)
 - Pareto enrichment (sort+cumPct) done in page.tsx, not DAL — keeps DAL accessor pure/reusable
 - Bales-per-day wide-format pivot done in server page (long→wide for Recharts) before server→client boundary
+- getUsersForTenant scoped to session.tenantId even for system_admin — system_admin manages own tenant on /admin/users; cross-tenant user mgmt out of scope
+- system_admin cross-tenant DAL accessors (getTenantList, getTenantById, getSystemAdminPlants) guard role BEFORE bypassing tenant filter — role check is the security boundary
+- getTenantById tenantId param is lookup key only (not security boundary); security = system_admin role check preceding the query
 
 ### Pending Todos
 
@@ -111,8 +114,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-11T08:39:23Z
-Stopped at: Completed 04-03-PLAN.md (analysis page + CSV export) — Phase 4 plan 3 complete
+Last session: 2026-06-11T09:07:45Z
+Stopped at: Completed 05-02-PLAN.md (admin DAL accessors) — Phase 5 plan 2 complete
 Resume file: None
 
 ---
