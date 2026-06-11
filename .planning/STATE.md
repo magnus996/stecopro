@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-06-11)
 ## Current Position
 
 Phase: 3 of 5 (Live Dashboard) — In progress
-Plan: 2 of N complete
+Plan: 3 of N complete
 Status: In progress
-Last activity: 2026-06-11 — Completed 03-02-PLAN.md (shared OEE calculation module)
+Last activity: 2026-06-11 — Completed 03-03-PLAN.md (dashboard DAL accessors + getDashboardData)
 
-Progress: [█████░░░░░] ~45% of milestone (10 plans complete, phases 3-5 partially planned)
+Progress: [█████░░░░░] ~47% of milestone (11 plans complete, phases 3-5 partially planned)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
-- Average duration: ~15 min
-- Total execution time: ~99 min
+- Total plans completed: 11
+- Average duration: ~10 min
+- Total execution time: ~101 min
 
 **By Phase:**
 
@@ -29,6 +29,7 @@ Progress: [█████░░░░░] ~45% of milestone (10 plans complete,
 |-------|-------|-------|----------|
 | 1 Foundation | 4/4 | 79 min | 20 min |
 | 2 Simulator & Ingest | 4/4 | ~42 min | ~11 min |
+| 3 Live Dashboard | 3/N | ~2 min | ~2 min |
 
 *Updated after each plan completion*
 
@@ -73,6 +74,11 @@ Recent decisions affecting current work:
 - QUALITY_FACTOR=0.95 hardcoded in oee.ts; Phase 5 adds per-plant override
 - nowMs explicit parameter in calculateOee — avoids Date.now() nondeterminism in tests
 - stopType (fault/idle/planned) does NOT change OEE math — all reduce availability equally
+- NOMINAL_BALES_PER_SHIFT = 120 defined locally in dal.ts (not imported from simulator params.ts — avoids coupling simulator-side code into DAL)
+- getDashboardData composing accessor: verifySession + Promise.all sub-queries; PlantState and DashboardData types exported for plan 04
+- PlantState derivation order: freshness (>3min stale) → outside_shift → open stop type → running
+- getBaleCountsByFraction uses LEFT JOIN fractions→baleEvents so zero-bale fractions always appear
+- osloDateStr derived via Intl.DateTimeFormat('en-CA', {timeZone:'Europe/Oslo'}) — returns YYYY-MM-DD natively
 
 ### Pending Todos
 
@@ -91,8 +97,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-11T07:43:50Z
-Stopped at: Completed 03-02-PLAN.md (shared OEE calculation module) — Phase 3 plan 2 complete
+Last session: 2026-06-11T07:48:46Z
+Stopped at: Completed 03-03-PLAN.md (dashboard DAL accessors + getDashboardData) — Phase 3 plan 3 complete
 Resume file: None
 
 ---
