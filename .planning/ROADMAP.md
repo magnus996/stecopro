@@ -13,7 +13,7 @@ StecoPro's technology demo proves the product end-to-end on mock data: a multi-t
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - App scaffold, data model, multi-tenant auth with roles
-- [ ] **Phase 2: Simulator & Ingest** - Realistic mock plant data through the real ingest interface
+- [x] **Phase 2: Simulator & Ingest** - Realistic mock plant data through the real ingest interface
 - [ ] **Phase 3: Live Dashboard** - Plant status, OEE, bale counts, current draw, stops
 - [ ] **Phase 4: Shift Reports & Analysis** - Shift reports, historical reports, downtime Pareto, export
 - [ ] **Phase 5: Administration & Demo Polish** - User/tenant/plant admin and demo seed
@@ -49,9 +49,9 @@ Decimal phases appear between their surrounding integers in numeric order.
   6. With the app running, new data appears continuously (live mode)
 **Plans**: 4 plans
 - [x] 02-01-PLAN.md — Ingest interface + SQLite adapter + WAL pragmas on app DB
-- [ ] 02-02-PLAN.md — TDD: pure state-machine engine (params, Oslo shift attribution, ~90% availability, idle≠fault)
-- [ ] 02-03-PLAN.md — Runner + db:simulate backfill (14 days through ingest) + verify-backfill.sh
-- [ ] 02-04-PLAN.md — Live mode via instrumentation.ts (catch-up + 60s tick) + verify-live.sh
+- [x] 02-02-PLAN.md — TDD: pure state-machine engine (params, Oslo shift attribution, ~90% availability, idle≠fault)
+- [x] 02-03-PLAN.md — Runner + db:simulate backfill (14 days through ingest) + verify-backfill.sh
+- [x] 02-04-PLAN.md — Live mode via instrumentation.ts (catch-up + 60s tick) + verify-live.sh
 
 ### Phase 3: Live Dashboard
 **Goal**: An operator sees what the plant is doing right now without walking the floor
@@ -99,7 +99,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 4/4 | Complete | 2026-06-11 |
-| 2. Simulator & Ingest | 1/4 | In progress | - |
+| 2. Simulator & Ingest | 4/4 | Complete | 2026-06-11 |
 | 3. Live Dashboard | 0/? | Not started | - |
 | 4. Shift Reports & Analysis | 0/? | Not started | - |
 | 5. Administration & Demo Polish | 0/? | Not started | - |

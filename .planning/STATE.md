@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-06-11)
 
 **Core value:** Plant owners see exactly what their sorting plant is doing — uptime, OEE, stops with reasons, and bales produced per fraction — without walking the floor or reading PLC logs.
-**Current focus:** Phase 1 - Foundation
+**Current focus:** Phase 3 - Dashboard
 
 ## Current Position
 
-Phase: 2 of 5 (Simulator & Ingest) — In progress
-Plan: 3 of 4 complete (02-01 + 02-02 + 02-03 done; 02-04 remains)
-Status: In progress
-Last activity: 2026-06-11 — Completed 02-03-PLAN.md (simulator runner + backfill)
+Phase: 2 of 5 (Simulator & Ingest) — Complete
+Plan: 4 of 4 complete (02-01 + 02-02 + 02-03 + 02-04 all done)
+Status: Phase complete
+Last activity: 2026-06-11 — Completed 02-04-PLAN.md (live simulator mode)
 
-Progress: [██████░░░░] ~35% of milestone (7 plans complete: 4 foundation + 02-01 + 02-02 + 02-03)
+Progress: [████████░░] ~40% of milestone (8 plans complete: 4 foundation + 4 simulator)
 
 ## Performance Metrics
 
@@ -28,7 +28,7 @@ Progress: [██████░░░░] ~35% of milestone (7 plans complete: 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1 Foundation | 4/4 | 79 min | 20 min |
-| 2 Simulator & Ingest | 3/4 | ~20 min | ~7 min |
+| 2 Simulator & Ingest | 4/4 | ~42 min | ~11 min |
 
 *Updated after each plan completion*
 
@@ -64,6 +64,9 @@ Recent decisions affecting current work:
 - runner.ts is DB-connection-free — adapter always injected; live mode (plan 04) reuses runBackfill
 - SQLite column names: runState, startAt, endAt are camelCase (not snake_case) — raw queries must quote them
 - verify-backfill.sh writes temp .ts assertions inside scripts/ (not /tmp) for node_modules resolution
+- instrumentationHook flag NOT added to next.config.ts — deprecated/auto-enabled in Next.js 16.2.9
+- recordedAt stored as Unix seconds in better-sqlite3 (integer/timestamp mode) — multiply by 1000 for epoch ms
+- Live mode catch-up uses capped gap window (MAX_CATCHUP_MS=24h) to avoid re-generating full history
 
 ### Pending Todos
 
@@ -82,8 +85,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-11T06:42:41Z
-Stopped at: Completed 02-03-PLAN.md (simulator runner + backfill)
+Last session: 2026-06-11T07:09:06Z
+Stopped at: Completed 02-04-PLAN.md (live simulator mode) — Phase 2 complete
 Resume file: None
 
 ---
