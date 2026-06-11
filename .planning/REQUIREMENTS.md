@@ -28,14 +28,14 @@ Requirements for the technology demo. Each maps to roadmap phases.
 
 ### Dashboard
 
-- [ ] **DASH-01**: Live plant status: running / stopped (with current stop reason) / running empty
-- [ ] **DASH-02**: OEE for current shift with availability/performance/quality breakdown and explicit definition
-- [ ] **DASH-03**: Uptime for current shift and today
-- [ ] **DASH-04**: Bale counts per fraction for current shift and today
-- [ ] **DASH-05**: Current-draw graph for the dosing bunker showing material/empty detection
-- [ ] **DASH-06**: Recent stops list: start, duration, reason
-- [ ] **DASH-07**: Throughput vs nominal capacity indicator
-- [ ] **DASH-08**: Dashboard auto-refreshes (near-real-time, polling acceptable)
+- [x] **DASH-01**: Live plant status: running / stopped (with current stop reason) / running empty
+- [x] **DASH-02**: OEE for current shift with availability/performance/quality breakdown and explicit definition
+- [x] **DASH-03**: Uptime for current shift and today
+- [x] **DASH-04**: Bale counts per fraction for current shift and today
+- [x] **DASH-05**: Current-draw graph for the dosing bunker showing material/empty detection
+- [x] **DASH-06**: Recent stops list: start, duration, reason
+- [x] **DASH-07**: Throughput vs nominal capacity indicator
+- [x] **DASH-08**: Dashboard auto-refreshes (near-real-time, polling acceptable)
 
 ### Shift Reports
 
@@ -108,14 +108,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SIMU-06 | Phase 2 | Complete |
 | SIMU-07 | Phase 2 | Complete |
 | SIMU-08 | Phase 2 | Complete |
-| DASH-01 | Phase 3 | Pending |
-| DASH-02 | Phase 3 | Pending |
-| DASH-03 | Phase 3 | Pending |
-| DASH-04 | Phase 3 | Pending |
-| DASH-05 | Phase 3 | Pending |
-| DASH-06 | Phase 3 | Pending |
-| DASH-07 | Phase 3 | Pending |
-| DASH-08 | Phase 3 | Pending |
+| DASH-01 | Phase 3 | Complete |
+| DASH-02 | Phase 3 | Complete |
+| DASH-03 | Phase 3 | Complete |
+| DASH-04 | Phase 3 | Complete |
+| DASH-05 | Phase 3 | Complete |
+| DASH-06 | Phase 3 | Complete |
+| DASH-07 | Phase 3 | Complete |
+| DASH-08 | Phase 3 | Complete |
 | SHFT-01 | Phase 4 | Pending |
 | SHFT-02 | Phase 4 | Pending |
 | SHFT-03 | Phase 4 | Pending |

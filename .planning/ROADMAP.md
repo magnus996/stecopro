@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - App scaffold, data model, multi-tenant auth with roles
 - [x] **Phase 2: Simulator & Ingest** - Realistic mock plant data through the real ingest interface
-- [ ] **Phase 3: Live Dashboard** - Plant status, OEE, bale counts, current draw, stops
+- [x] **Phase 3: Live Dashboard** - Plant status, OEE, bale counts, current draw, stops
 - [ ] **Phase 4: Shift Reports & Analysis** - Shift reports, historical reports, downtime Pareto, export
 - [ ] **Phase 5: Administration & Demo Polish** - User/tenant/plant admin and demo seed
 
@@ -65,10 +65,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. Recent stops listed with start, duration, reason
   6. Dashboard updates automatically while the simulator runs
 **Plans**: 4 plans
-- [ ] 03-01-PLAN.md — Promote Oslo shift helpers to shared src/lib/time.ts (re-export from simulator) + install recharts
-- [ ] 03-02-PLAN.md — TDD: shared src/lib/oee.ts (A/P/Q, stop-window clamping, configurable quality) with unit tests
-- [ ] 03-03-PLAN.md — DAL dashboard accessors: live state, OEE, bale counts (shift+today), stops, bunker current-draw, uptime/throughput
-- [ ] 03-04-PLAN.md — Dashboard UI: status/OEE/bale/stops cards + Recharts current-draw + AutoRefresh polling + e2e-phase3.sh
+- [x] 03-01-PLAN.md — Promote Oslo shift helpers to shared src/lib/time.ts (re-export from simulator) + install recharts
+- [x] 03-02-PLAN.md — TDD: shared src/lib/oee.ts (A/P/Q, stop-window clamping, configurable quality) with unit tests
+- [x] 03-03-PLAN.md — DAL dashboard accessors: live state, OEE, bale counts (shift+today), stops, bunker current-draw, uptime/throughput
+- [x] 03-04-PLAN.md — Dashboard UI: status/OEE/bale/stops cards + Recharts current-draw + AutoRefresh polling + e2e-phase3.sh
 
 ### Phase 4: Shift Reports & Analysis
 **Goal**: Produksjonsleder gets shift reports and historical analysis instead of guesswork
