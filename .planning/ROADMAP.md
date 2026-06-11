@@ -64,7 +64,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Dosing bunker current-draw graph visualizes material level / empty detection
   5. Recent stops listed with start, duration, reason
   6. Dashboard updates automatically while the simulator runs
-**Plans**: TBD during planning
+**Plans**: 4 plans
+- [ ] 03-01-PLAN.md — Promote Oslo shift helpers to shared src/lib/time.ts (re-export from simulator) + install recharts
+- [ ] 03-02-PLAN.md — TDD: shared src/lib/oee.ts (A/P/Q, stop-window clamping, configurable quality) with unit tests
+- [ ] 03-03-PLAN.md — DAL dashboard accessors: live state, OEE, bale counts (shift+today), stops, bunker current-draw, uptime/throughput
+- [ ] 03-04-PLAN.md — Dashboard UI: status/OEE/bale/stops cards + Recharts current-draw + AutoRefresh polling + e2e-phase3.sh
 
 ### Phase 4: Shift Reports & Analysis
 **Goal**: Produksjonsleder gets shift reports and historical analysis instead of guesswork
@@ -100,7 +104,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Foundation | 4/4 | Complete | 2026-06-11 |
 | 2. Simulator & Ingest | 4/4 | Complete | 2026-06-11 |
-| 3. Live Dashboard | 0/? | Not started | - |
+| 3. Live Dashboard | 0/4 | Planned | - |
 | 4. Shift Reports & Analysis | 0/? | Not started | - |
 | 5. Administration & Demo Polish | 0/? | Not started | - |
 
