@@ -62,7 +62,7 @@ export function mulberry32(seed: number): () => number {
 }
 
 // ---------------------------------------------------------------------------
-// Helpers
+// Pure helpers — no side effects, only operate on the rng and return values
 // ---------------------------------------------------------------------------
 
 /** Pick a random integer in [min, max] inclusive. */
@@ -75,7 +75,10 @@ function randFloat(rng: () => number, min: number, max: number): number {
   return min + rng() * (max - min)
 }
 
-/** Sample a stop duration (in minutes) from the weighted band distribution. */
+/**
+ * Sample a stop duration (in minutes) from the weighted band distribution.
+ * Uses STOP_DURATION_BANDS and STOP_DURATION_WEIGHTS from params.
+ */
 function sampleStopDuration(rng: () => number): number {
   const r = rng()
   let cumulative = 0
@@ -86,21 +89,37 @@ function sampleStopDuration(rng: () => number): number {
       return randInt(rng, min, max)
     }
   }
-  // Fallback to last band
+  // Fallback: last band (should not reach here with valid weights)
   const [min, max] = STOP_DURATION_BANDS[STOP_DURATION_BANDS.length - 1]
   return randInt(rng, min, max)
 }
 
-/** Pick a random fault/planned reason. */
+/**
+ * Pick a random fault (85%) or planned (15%) stop reason.
+ * All strings are Norwegian HMI-style.
+ */
 function pickFaultOrPlannedReason(rng: () => number): { reason: string; stopType: 'fault' | 'planned' } {
-  // 85% fault, 15% planned
   if (rng() < 0.85) {
     const idx = Math.floor(rng() * FAULT_REASONS.length)
     return { reason: FAULT_REASONS[idx], stopType: 'fault' }
-  } else {
-    const idx = Math.floor(rng() * PLANNED_REASONS.length)
-    return { reason: PLANNED_REASONS[idx], stopType: 'planned' }
   }
+  const idx = Math.floor(rng() * PLANNED_REASONS.length)
+  return { reason: PLANNED_REASONS[idx], stopType: 'planned' }
+}
+
+/**
+ * Schedule the next bunker-empty event after a refill at `refillMinute`.
+ * Returns { startMinute, endMinute } or null if it falls outside the shift.
+ */
+function scheduleBunkerEmpty(
+  rng: () => number,
+  refillMinute: number,
+  totalMinutes: number
+): { startMinute: number; endMinute: number } | null {
+  const startMinute = refillMinute + BUNKER_REFILL_PERIOD_MIN
+  if (startMinute >= totalMinutes) return null
+  const duration = randInt(rng, BUNKER_EMPTY_MIN_MIN, BUNKER_EMPTY_MAX_MIN)
+  return { startMinute, endMinute: startMinute + duration }
 }
 
 // ---------------------------------------------------------------------------
@@ -130,40 +149,26 @@ export function simulateShift(input: SimulateShiftInput): SimEvent[] {
 
   // ---- State machine ----
   let state: PlantState = 'running'
-  let stopEndMinute = 0             // minute index when current stop ends
-  let bunkerRefillMinute = 0        // minute index of last bunker refill
-  let bunkerEmptyScheduled = false  // whether a bunker-empty event is upcoming
-  let bunkerEmptyStartMinute = 0    // when bunker empty starts
-  let bunkerEmptyEndMinute = 0      // when bunker empty ends
+  let stopEndMinute = 0   // minute when current fault/planned stop ends
 
-  // Schedule first bunker empty: starts at BUNKER_REFILL_PERIOD_MIN from shift start
-  bunkerEmptyStartMinute = BUNKER_REFILL_PERIOD_MIN
-  bunkerEmptyEndMinute =
-    bunkerEmptyStartMinute + randInt(rng, BUNKER_EMPTY_MIN_MIN, BUNKER_EMPTY_MAX_MIN)
-  bunkerEmptyScheduled = true
+  // Schedule first bunker empty: starts BUNKER_REFILL_PERIOD_MIN minutes into the shift
+  let nextBunker = scheduleBunkerEmpty(rng, 0, totalMinutes)
 
   for (let minute = 0; minute < totalMinutes; minute++) {
     const atMs = startMs + minute * 60000
 
-    // ---- Handle bunker-empty transitions ----
-    if (bunkerEmptyScheduled && state === 'running' && minute === bunkerEmptyStartMinute) {
+    // ---- Handle bunker-empty start ----
+    if (nextBunker && state === 'running' && minute === nextBunker.startMinute) {
       state = 'bunker-empty'
       events.push({ type: 'stop', at: atMs, reason: IDLE_REASONS[0], stopType: 'idle' })
     }
 
-    if (state === 'bunker-empty' && minute >= bunkerEmptyEndMinute) {
+    // ---- Handle bunker-empty end ----
+    if (state === 'bunker-empty' && nextBunker && minute >= nextBunker.endMinute) {
       state = 'running'
       events.push({ type: 'stopEnd', at: atMs })
-      // Schedule next bunker empty after refill
-      bunkerRefillMinute = minute
-      bunkerEmptyScheduled = true
-      bunkerEmptyStartMinute = minute + BUNKER_REFILL_PERIOD_MIN
-      bunkerEmptyEndMinute =
-        bunkerEmptyStartMinute + randInt(rng, BUNKER_EMPTY_MIN_MIN, BUNKER_EMPTY_MAX_MIN)
-      // Only schedule if it fits within the shift
-      if (bunkerEmptyStartMinute >= totalMinutes) {
-        bunkerEmptyScheduled = false
-      }
+      // Schedule next bunker-empty from this refill point
+      nextBunker = scheduleBunkerEmpty(rng, minute, totalMinutes)
     }
 
     // ---- Handle fault/planned stop end ----
