@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-06-11)
 ## Current Position
 
 Phase: 4 of 5 (Shift Reports & Analysis) — In progress
-Plan: 2 of 3 in current phase complete
+Plan: 3 of 3 in current phase complete (pending 04-02 parallel)
 Status: In progress
-Last activity: 2026-06-11 — Completed 04-02-PLAN.md (shift reports pages)
+Last activity: 2026-06-11 — Completed 04-03-PLAN.md (analysis page + CSV export)
 
-Progress: [███████░░░] ~65% of milestone (13 plans complete, phase 5 unplanned)
+Progress: [████████░░] ~70% of milestone (14 plans complete, phase 5 unplanned)
 
 ## Performance Metrics
 
@@ -89,6 +89,10 @@ Recent decisions affecting current work:
 - Recharts 3.x Tooltip formatter typed as (v) => [...] with Number(v) cast — ValueType is string|number|Array|undefined
 - 'use client' confined to AutoRefresh and CurrentDrawChart leaf components; card widgets stay server-only
 - Dashboard page auto-dynamic via verifySession() cookies() usage — no explicit force-dynamic needed
+- Analysis page operator role gate: redirect('/reports/shifts') — operators blocked from /reports analysis page
+- CSV route handler uses decrypt(cookie) directly → clean 401/403; verifySession() is wrong for API endpoints (redirects HTML)
+- Pareto enrichment (sort+cumPct) done in page.tsx, not DAL — keeps DAL accessor pure/reusable
+- Bales-per-day wide-format pivot done in server page (long→wide for Recharts) before server→client boundary
 
 ### Pending Todos
 
@@ -107,8 +111,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-11T08:37:43Z
-Stopped at: Completed 04-02-PLAN.md (shift reports pages) — Phase 4 plan 2 complete
+Last session: 2026-06-11T08:39:23Z
+Stopped at: Completed 04-03-PLAN.md (analysis page + CSV export) — Phase 4 plan 3 complete
 Resume file: None
 
 ---
