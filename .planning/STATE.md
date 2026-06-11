@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-06-11)
 ## Current Position
 
 Phase: 3 of 5 (Live Dashboard) — In progress
-Plan: 3 of N complete
+Plan: 4 of N complete
 Status: In progress
-Last activity: 2026-06-11 — Completed 03-03-PLAN.md (dashboard DAL accessors + getDashboardData)
+Last activity: 2026-06-11 — Completed 03-04-PLAN.md (live dashboard UI + E2E verification)
 
-Progress: [█████░░░░░] ~47% of milestone (11 plans complete, phases 3-5 partially planned)
+Progress: [██████░░░░] ~52% of milestone (12 plans complete, phases 3-5 partially planned)
 
 ## Performance Metrics
 
@@ -29,7 +29,7 @@ Progress: [█████░░░░░] ~47% of milestone (11 plans complete,
 |-------|-------|-------|----------|
 | 1 Foundation | 4/4 | 79 min | 20 min |
 | 2 Simulator & Ingest | 4/4 | ~42 min | ~11 min |
-| 3 Live Dashboard | 3/N | ~2 min | ~2 min |
+| 3 Live Dashboard | 4/N | ~7 min | ~2 min |
 
 *Updated after each plan completion*
 
@@ -79,6 +79,12 @@ Recent decisions affecting current work:
 - PlantState derivation order: freshness (>3min stale) → outside_shift → open stop type → running
 - getBaleCountsByFraction uses LEFT JOIN fractions→baleEvents so zero-bale fractions always appear
 - osloDateStr derived via Intl.DateTimeFormat('en-CA', {timeZone:'Europe/Oslo'}) — returns YYYY-MM-DD natively
+- AutoRefresh renders null and drives router.refresh() on 30s interval — no websockets, minimal client footprint
+- isAnimationActive=false on Recharts Area prevents re-animation flicker on polling refresh
+- Date serialisation done in page.tsx before crossing server→client boundary (recordedAt → 'HH:mm' Oslo label)
+- Recharts 3.x Tooltip formatter typed as (v) => [...] with Number(v) cast — ValueType is string|number|Array|undefined
+- 'use client' confined to AutoRefresh and CurrentDrawChart leaf components; card widgets stay server-only
+- Dashboard page auto-dynamic via verifySession() cookies() usage — no explicit force-dynamic needed
 
 ### Pending Todos
 
@@ -97,8 +103,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-11T07:48:46Z
-Stopped at: Completed 03-03-PLAN.md (dashboard DAL accessors + getDashboardData) — Phase 3 plan 3 complete
+Last session: 2026-06-11T07:55:41Z
+Stopped at: Completed 03-04-PLAN.md (live dashboard UI + E2E) — Phase 3 plan 4 complete
 Resume file: None
 
 ---
