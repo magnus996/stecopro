@@ -32,6 +32,7 @@ type UnsupportedReason = 'insecure' | 'ios_not_installed' | 'generic'
 export default function PushToggle() {
   const [supported, setSupported] = useState<boolean | null>(null)
   const [unsupportedReason, setUnsupportedReason] = useState<UnsupportedReason>('generic')
+  const [diagnostics, setDiagnostics] = useState<string>('')
   const [subscribed, setSubscribed] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -52,6 +53,17 @@ export default function PushToggle() {
       } else {
         setUnsupportedReason('generic')
       }
+      // Capability readout so "why is there no button" is answerable
+      // from the phone screen instead of remote guesswork.
+      setDiagnostics(
+        [
+          `sikker kontekst: ${window.isSecureContext ? 'ja' : 'nei'}`,
+          `service worker: ${'serviceWorker' in navigator ? 'ja' : 'nei'}`,
+          `push-API: ${'PushManager' in window ? 'ja' : 'nei'}`,
+          `varslings-API: ${'Notification' in window ? 'ja' : 'nei'}`,
+          `installert (standalone): ${standalone ? 'ja' : 'nei'}`,
+        ].join(' · '),
+      )
       setSupported(false)
       return
     }
@@ -166,13 +178,18 @@ export default function PushToggle() {
             <li>Åpne StecoPro fra Hjem-skjermen og aktiver varsler her</li>
           </ol>
           <p className="mt-2 text-xs">Krever iOS 16.4 eller nyere.</p>
+          <p className="mt-2 text-xs opacity-70">{diagnostics}</p>
         </div>
       )
     }
     return (
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">
-        Push-varsler støttes ikke i denne nettleseren.
-      </p>
+      <div className="space-y-2">
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          Push-varsler støttes ikke i denne nettleseren. På iPhone kreves iOS 16.4
+          eller nyere, og at appen er åpnet fra Hjem-skjermen.
+        </p>
+        <p className="text-xs text-zinc-400 dark:text-zinc-500">{diagnostics}</p>
+      </div>
     )
   }
 
