@@ -18,6 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Shift Reports & Analysis** - Shift reports, historical reports, downtime Pareto, export
 - [x] **Phase 5: Administration & Demo Polish** - User/tenant/plant admin and demo seed
 - [x] **Phase 6: Calibration, Branding & Inventory** - Real-plant calibration, logo, production chart, bale inventory
+- [ ] **Phase 7: PWA Operator Companion** - Installable PWA, push notifications, in-shift reporting with photos
 
 ## Phase Details
 
@@ -122,10 +123,23 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] 06-03-PLAN.md — Inventory backend: bale_shipments table, stock/history DAL, registerShipment action, seed-shipments wired into demo:setup (INVT-01)
 - [x] 06-04-PLAN.md — Inventory UI (/inventory: stock + shipment form + history) + dashboard Lagerstatus card + Produksjon-i-dag bar chart + E2E (INVT-02, INVT-03, DASH-09)
 
+### Phase 7: PWA Operator Companion
+**Goal**: Operators get notified on their phone when the plant needs them and report back during the shift
+**Depends on**: Phase 6
+**Requirements**: PWAS-01, NOTI-01, NOTI-02, REPT-01, REPT-02, REPT-03, REPT-04
+**Success Criteria** (what must be TRUE):
+  1. App installs to home screen (manifest + icons + service worker); registration only when logged in
+  2. A new fault stop or 'Bunker tom' triggers a push notification deep-linking to /stopp/[id]; planned stops never notify; backfill/catch-up never notifies
+  3. /varsler shows recent notifiable stops with ack status and a working enable-notifications toggle; works without push permission
+  4. /skift gives operators today's stops with acknowledge + comment + camera, and a shift-notes logbook
+  5. Photos upload from mobile camera, are tenant-isolated, and render in comment threads and notes
+  6. Dev trigger endpoint lets a demo fire a stop+notification on command; full flow proven by e2e-phase7.sh; phases 1/3/5/6 suites stay green
+**Plans**: TBD during planning
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -135,6 +149,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 4. Shift Reports & Analysis | 3/3 | Complete | 2026-06-11 |
 | 5. Administration & Demo Polish | 6/6 | Complete | 2026-06-11 |
 | 6. Calibration, Branding & Inventory | 4/4 | Complete | 2026-06-11 |
+| 7. PWA Operator Companion | 0/? | Not started | - |
 
 ---
 *Roadmap created: 2026-06-11*
