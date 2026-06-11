@@ -3,6 +3,8 @@ import type { UserRole } from '@/db/schema'
 export type NavItem = { label: string; href: string; roles: UserRole[] }
 
 export const NAV_ITEMS: NavItem[] = [
+  { label: 'Mitt skift',     href: '/skift',          roles: ['operator', 'produksjonsleder', 'admin', 'system_admin'] },
+  { label: 'Varsler',        href: '/varsler',        roles: ['operator', 'produksjonsleder', 'admin', 'system_admin'] },
   { label: 'Dashbord',       href: '/dashboard',     roles: ['operator', 'produksjonsleder', 'admin', 'system_admin'] },
   { label: 'Skiftrapporter', href: '/reports/shifts', roles: ['operator', 'produksjonsleder', 'admin', 'system_admin'] },
   { label: 'Lager',          href: '/inventory',      roles: ['operator', 'produksjonsleder', 'admin', 'system_admin'] },

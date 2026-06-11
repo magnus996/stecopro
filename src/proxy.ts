@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { decrypt } from '@/lib/session'
 
-const protectedRoutes = ['/dashboard', '/reports', '/admin']
+const protectedRoutes = ['/dashboard', '/reports', '/admin', '/skift', '/varsler', '/stopp']
 const publicRoutes = ['/login']
 
 export default async function proxy(req: NextRequest): Promise<NextResponse> {
