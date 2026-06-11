@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import Image from 'next/image'
 import { getCurrentUser } from '@/lib/dal'
 import Nav from '@/components/Nav'
 import LogoutButton from '@/components/LogoutButton'
@@ -29,10 +30,9 @@ export default async function AppLayout({
       {/* Sidebar */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 md:flex">
         {/* App title */}
-        <div className="border-b border-zinc-200 px-4 py-5 dark:border-zinc-800">
-          <span className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-            Steco<span className="text-zinc-400">pro</span>
-          </span>
+        <div className="border-b border-zinc-200 bg-zinc-900 px-4 py-5 dark:border-zinc-800">
+          <Image src="/logo-hvit.png" alt="Steco" width={150} height={32}
+            style={{ height: 'auto', width: '150px' }} priority />
         </div>
 
         {/* Navigation */}
@@ -57,9 +57,10 @@ export default async function AppLayout({
       {/* Mobile top bar */}
       <div className="flex w-full flex-col md:hidden">
         <header className="flex items-center justify-between border-b border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900">
-          <span className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
-            Steco<span className="text-zinc-400">pro</span>
-          </span>
+          <div className="rounded bg-zinc-900 px-2 py-1">
+            <Image src="/logo-hvit.png" alt="Steco" width={110} height={23}
+              style={{ height: 'auto', width: '110px' }} priority />
+          </div>
           <div className="text-right">
             <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">{user.name}</p>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">{roleLabel}</p>
