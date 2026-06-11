@@ -39,16 +39,16 @@ Requirements for the technology demo. Each maps to roadmap phases.
 
 ### Shift Reports
 
-- [ ] **SHFT-01**: Shift report per shift: OEE, uptime, stop count and total stop time, bales per fraction, energy indication
-- [ ] **SHFT-02**: Shift boundaries fixed at 07–15 and 15–22; data attributed to the correct shift automatically
-- [ ] **SHFT-03**: Compare shifts over a selected period (day vs evening)
+- [x] **SHFT-01**: Shift report per shift: OEE, uptime, stop count and total stop time, bales per fraction, energy indication
+- [x] **SHFT-02**: Shift boundaries fixed at 07–15 and 15–22; data attributed to the correct shift automatically
+- [x] **SHFT-03**: Compare shifts over a selected period (day vs evening)
 
 ### Reports & Analysis
 
-- [ ] **RPRT-01**: Historical report for a date range: production totals, uptime, OEE trend
-- [ ] **RPRT-02**: Downtime analysis: Pareto of stop reasons by total duration and count
-- [ ] **RPRT-03**: Bale production per fraction over time (chart + table)
-- [ ] **RPRT-04**: Export report data to CSV
+- [x] **RPRT-01**: Historical report for a date range: production totals, uptime, OEE trend
+- [x] **RPRT-02**: Downtime analysis: Pareto of stop reasons by total duration and count
+- [x] **RPRT-03**: Bale production per fraction over time (chart + table)
+- [x] **RPRT-04**: Export report data to CSV
 
 ### Administration
 
@@ -116,13 +116,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DASH-06 | Phase 3 | Complete |
 | DASH-07 | Phase 3 | Complete |
 | DASH-08 | Phase 3 | Complete |
-| SHFT-01 | Phase 4 | Pending |
-| SHFT-02 | Phase 4 | Pending |
-| SHFT-03 | Phase 4 | Pending |
-| RPRT-01 | Phase 4 | Pending |
-| RPRT-02 | Phase 4 | Pending |
-| RPRT-03 | Phase 4 | Pending |
-| RPRT-04 | Phase 4 | Pending |
+| SHFT-01 | Phase 4 | Complete |
+| SHFT-02 | Phase 4 | Complete |
+| SHFT-03 | Phase 4 | Complete |
+| RPRT-01 | Phase 4 | Complete |
+| RPRT-02 | Phase 4 | Complete |
+| RPRT-03 | Phase 4 | Complete |
+| RPRT-04 | Phase 4 | Complete |
 | ADMN-01 | Phase 5 | Pending |
 | ADMN-02 | Phase 5 | Pending |
 | ADMN-03 | Phase 5 | Pending |

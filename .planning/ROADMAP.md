@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation** - App scaffold, data model, multi-tenant auth with roles
 - [x] **Phase 2: Simulator & Ingest** - Realistic mock plant data through the real ingest interface
 - [x] **Phase 3: Live Dashboard** - Plant status, OEE, bale counts, current draw, stops
-- [ ] **Phase 4: Shift Reports & Analysis** - Shift reports, historical reports, downtime Pareto, export
+- [x] **Phase 4: Shift Reports & Analysis** - Shift reports, historical reports, downtime Pareto, export
 - [ ] **Phase 5: Administration & Demo Polish** - User/tenant/plant admin and demo seed
 
 ## Phase Details
@@ -83,8 +83,8 @@ Decimal phases appear between their surrounding integers in numeric order.
   6. Report data exports to CSV
 **Plans**: 3 plans
 - [x] 04-01-PLAN.md — Report DAL accessors (shift list/detail, Pareto, bales-per-day, day-vs-evening, energy proxy) + vitest invariants (cartesian avoidance, OEE consistency)
-- [ ] 04-02-PLAN.md — Shift reports area: /reports/shifts list + /reports/shifts/[shiftId] detail (OEE, stops, bales, energy) + E2E
-- [ ] 04-03-PLAN.md — Analysis page /reports (OEE trend, Pareto, bales-per-day, day-vs-evening) + CSV export (semicolon+BOM) + operator role gate + E2E
+- [x] 04-02-PLAN.md — Shift reports area: /reports/shifts list + /reports/shifts/[shiftId] detail (OEE, stops, bales, energy) + E2E
+- [x] 04-03-PLAN.md — Analysis page /reports (OEE trend, Pareto, bales-per-day, day-vs-evening) + CSV export (semicolon+BOM) + operator role gate + E2E
 
 ### Phase 5: Administration & Demo Polish
 **Goal**: The demo is self-contained: admins manage users/tenants/plants and the demo dataset sells the product
