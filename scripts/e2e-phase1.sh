@@ -1,5 +1,5 @@
 #!/bin/zsh
-BASE=http://localhost:3000
+BASE=${BASE:-http://localhost:3000}
 pass=0; fail=0
 check() { if [ "$1" = "1" ]; then pass=$((pass+1)); echo "✓ $2"; else fail=$((fail+1)); echo "✗ $2"; fi }
 

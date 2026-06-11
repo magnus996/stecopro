@@ -2,7 +2,7 @@
 # E2E test for Phase 3 – Live Dashboard
 # Requires: dev server running on http://localhost:3000 with the simulator active
 # Run: ./scripts/e2e-phase3.sh
-BASE=http://localhost:3000
+BASE=${BASE:-http://localhost:3000}
 pass=0; fail=0
 check() { if [ "$1" = "1" ]; then pass=$((pass+1)); echo "✓ $2"; else fail=$((fail+1)); echo "✗ $2"; fi }
 
