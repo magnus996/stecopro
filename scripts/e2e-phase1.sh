@@ -15,14 +15,14 @@ login() { # $1 email -> writes cookies to $2
 r=$(login operator@steco-demo.no /tmp/c_op.txt)
 check $(echo "$r" | grep -q '"ok":true' && echo 1 || echo 0) "SC2: operatør kan logge inn"
 dash=$(curl -s -b /tmp/c_op.txt $BASE/dashboard)
-check $(echo "$dash" | grep -q 'Steco Demo' && echo 1 || echo 0) "SC2: operatør ser Steco Demo-tenant"
+check $(echo "$dash" | grep -q 'Ole Operatør' && echo 1 || echo 0) "SC2: operatør ser egen brukerkontekst"
 check $(echo "$dash" | grep -q 'Returpapir Linje 1' && echo 1 || echo 0) "SC2: operatør ser Returpapir Linje 1"
 
 # SC2 negative: isolation tenant user sees own tenant, not Steco Demo's plant
 r=$(login bruker@isolasjonstest.no /tmp/c_iso.txt)
 check $(echo "$r" | grep -q '"ok":true' && echo 1 || echo 0) "SC2-neg: isolasjonsbruker kan logge inn"
 dash=$(curl -s -b /tmp/c_iso.txt $BASE/dashboard)
-check $(echo "$dash" | grep -q 'Isolasjonstest' && echo 1 || echo 0) "SC2-neg: ser Isolasjonstest-tenant"
+check $(echo "$dash" | grep -q 'Isolert Bruker' && echo 1 || echo 0) "SC2-neg: ser egen brukerkontekst (Isolasjonstest)"
 check $(echo "$dash" | grep -q 'Returpapir Linje 1' && echo 0 || echo 1) "SC2-neg: ser IKKE Steco Demos anlegg"
 
 # Wrong password rejected
