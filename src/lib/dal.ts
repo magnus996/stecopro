@@ -23,6 +23,7 @@ import { db } from '@/db'
 import {
   users, plants, tenants,
   shifts, stopEvents, baleEvents, machines, timeSeriesReadings, fractions, baleShipments,
+  stopAcknowledgements, stopComments, shiftNotes,
 } from '@/db/schema'
 import { eq, and, lte, gt, gte, lt, desc, asc, isNull, isNotNull, or, sql } from 'drizzle-orm'
 import type { SessionPayload } from './definitions'
@@ -1374,5 +1375,240 @@ export const getShipmentHistory = cache(async (plantId: number, limit = 20) => {
       )
     )
     .orderBy(desc(baleShipments.shippedAt))
+    .limit(limit)
+})
+
+// ---------------------------------------------------------------------------
+// Phase 7: PWA Operator read accessors (07-04)
+// All follow the DAL tenant isolation rule: verifySession() first, session.tenantId in every WHERE.
+// ---------------------------------------------------------------------------
+
+/** Shape returned by getRecentNotifiableStops */
+export interface NotifiableStopRow {
+  id: number
+  startAt: Date
+  endAt: Date | null
+  reason: string | null
+  stopType: string
+  ackCount: number
+}
+
+/**
+ * Returns fault/Bunker-tom stops in the last 48 hours for the given plant (NOTI-02, /varsler).
+ * Filters: stopType='fault' OR (stopType='idle' AND reason='Bunker tom').
+ * Includes ackCount (number of unique users who acknowledged each stop).
+ */
+export const getRecentNotifiableStops = cache(async (plantId: number): Promise<NotifiableStopRow[]> => {
+  const session = await verifySession()
+  const since = new Date(Date.now() - 48 * 60 * 60 * 1000)
+
+  const rows = await db
+    .select({
+      id: stopEvents.id,
+      startAt: stopEvents.startAt,
+      endAt: stopEvents.endAt,
+      reason: stopEvents.reason,
+      stopType: stopEvents.stopType,
+      ackCount: sql<number>`count(${stopAcknowledgements.id})`,
+    })
+    .from(stopEvents)
+    .leftJoin(
+      stopAcknowledgements,
+      eq(stopAcknowledgements.stopEventId, stopEvents.id),
+    )
+    .where(
+      and(
+        eq(stopEvents.tenantId, session.tenantId),
+        eq(stopEvents.plantId, plantId),
+        gte(stopEvents.startAt, since),
+        or(
+          eq(stopEvents.stopType, 'fault'),
+          and(
+            eq(stopEvents.stopType, 'idle'),
+            eq(stopEvents.reason, 'Bunker tom'),
+          ),
+        ),
+      )
+    )
+    .groupBy(stopEvents.id)
+    .orderBy(desc(stopEvents.startAt))
+
+  return rows.map(r => ({
+    id: r.id,
+    startAt: r.startAt,
+    endAt: r.endAt,
+    reason: r.reason,
+    stopType: r.stopType,
+    ackCount: Number(r.ackCount),
+  }))
+})
+
+/** Shape returned by getTodaysStopsWithAcks */
+export interface TodayStopRow {
+  id: number
+  startAt: Date
+  endAt: Date | null
+  reason: string | null
+  stopType: string
+  ackCount: number
+}
+
+/**
+ * Returns today's stops for a plant with per-stop ack count (/skift).
+ * "Today" = Oslo calendar day start (07:00 Oslo) via getShiftBoundsUtc.
+ */
+export const getTodaysStopsWithAcks = cache(async (plantId: number): Promise<TodayStopRow[]> => {
+  const session = await verifySession()
+  const now = new Date()
+  const osloDateStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Oslo' }).format(now)
+  const { startMs: todayStartMs } = getShiftBoundsUtc(osloDateStr, 'day')
+  const todayStart = new Date(todayStartMs)
+
+  const rows = await db
+    .select({
+      id: stopEvents.id,
+      startAt: stopEvents.startAt,
+      endAt: stopEvents.endAt,
+      reason: stopEvents.reason,
+      stopType: stopEvents.stopType,
+      ackCount: sql<number>`count(${stopAcknowledgements.id})`,
+    })
+    .from(stopEvents)
+    .leftJoin(
+      stopAcknowledgements,
+      eq(stopAcknowledgements.stopEventId, stopEvents.id),
+    )
+    .where(
+      and(
+        eq(stopEvents.tenantId, session.tenantId),
+        eq(stopEvents.plantId, plantId),
+        gte(stopEvents.startAt, todayStart),
+      )
+    )
+    .groupBy(stopEvents.id)
+    .orderBy(desc(stopEvents.startAt))
+
+  return rows.map(r => ({
+    id: r.id,
+    startAt: r.startAt,
+    endAt: r.endAt,
+    reason: r.reason,
+    stopType: r.stopType,
+    ackCount: Number(r.ackCount),
+  }))
+})
+
+/** Shape returned by getStopDetail */
+export interface StopDetail {
+  stop: {
+    id: number
+    startAt: Date
+    endAt: Date | null
+    reason: string | null
+    stopType: string
+  }
+  acks: { userName: string; createdAt: Date }[]
+  comments: {
+    userName: string
+    comment: string | null
+    correctedReason: string | null
+    photoId: number | null
+    createdAt: Date
+  }[]
+}
+
+/**
+ * Returns the full detail for a single stop, tenant-scoped.
+ * Returns null if stop not found for this tenant (page renders notFound()).
+ * Composes: stop row + acks (with user names) + comments (with user names + photoId).
+ */
+export const getStopDetail = cache(async (stopId: number): Promise<StopDetail | null> => {
+  const session = await verifySession()
+
+  const [stop] = await db
+    .select({
+      id: stopEvents.id,
+      startAt: stopEvents.startAt,
+      endAt: stopEvents.endAt,
+      reason: stopEvents.reason,
+      stopType: stopEvents.stopType,
+    })
+    .from(stopEvents)
+    .where(
+      and(
+        eq(stopEvents.id, stopId),
+        eq(stopEvents.tenantId, session.tenantId),
+      )
+    )
+    .limit(1)
+
+  if (!stop) return null
+
+  // Parallel fetch: acks and comments
+  const [acks, comments] = await Promise.all([
+    db
+      .select({
+        userName: users.name,
+        createdAt: stopAcknowledgements.createdAt,
+      })
+      .from(stopAcknowledgements)
+      .innerJoin(users, eq(users.id, stopAcknowledgements.userId))
+      .where(eq(stopAcknowledgements.stopEventId, stopId))
+      .orderBy(asc(stopAcknowledgements.createdAt)),
+    db
+      .select({
+        userName: users.name,
+        comment: stopComments.comment,
+        correctedReason: stopComments.correctedReason,
+        photoId: stopComments.photoId,
+        createdAt: stopComments.createdAt,
+      })
+      .from(stopComments)
+      .innerJoin(users, eq(users.id, stopComments.userId))
+      .where(
+        and(
+          eq(stopComments.stopEventId, stopId),
+          eq(stopComments.tenantId, session.tenantId),
+        )
+      )
+      .orderBy(asc(stopComments.createdAt)),
+  ])
+
+  return { stop, acks, comments }
+})
+
+/** Shape returned by getShiftNotes */
+export interface ShiftNoteRow {
+  id: number
+  content: string
+  photoId: number | null
+  userName: string
+  createdAt: Date
+}
+
+/**
+ * Returns the most recent shift notes for a plant (REPT-03, /skift logbook).
+ * Capped at 50 entries, ordered newest first, joined to author name.
+ */
+export const getShiftNotes = cache(async (plantId: number, limit = 50): Promise<ShiftNoteRow[]> => {
+  const session = await verifySession()
+
+  return db
+    .select({
+      id: shiftNotes.id,
+      content: shiftNotes.content,
+      photoId: shiftNotes.photoId,
+      userName: users.name,
+      createdAt: shiftNotes.createdAt,
+    })
+    .from(shiftNotes)
+    .innerJoin(users, eq(users.id, shiftNotes.userId))
+    .where(
+      and(
+        eq(shiftNotes.tenantId, session.tenantId),
+        eq(shiftNotes.plantId, plantId),
+      )
+    )
+    .orderBy(desc(shiftNotes.createdAt))
     .limit(limit)
 })
