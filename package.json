@@ -9,6 +9,8 @@
     "lint": "eslint",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx src/db/seed.ts",
+    "db:simulate": "tsx scripts/simulate.ts",
+    "db:reset": "npm run db:seed && npm run db:simulate",
     "db:studio": "drizzle-kit studio",
     "test": "vitest run"
   },
