@@ -18,13 +18,13 @@ Requirements for the technology demo. Each maps to roadmap phases.
 ### Data Model & Simulator
 
 - [x] **SIMU-01**: Data model covers tenants, plants, machines, shifts, fractions, bale events, stop events (with reason), and time-series readings (current draw) — designed so an OPC UA adapter can replace the simulator
-- [ ] **SIMU-02**: Ingest interface (internal API) through which all plant data enters the system; simulator is just one producer
-- [ ] **SIMU-03**: Simulator generates 14 days of history: two shifts per day (07–15, 15–22), ~90% availability
-- [ ] **SIMU-04**: Stops follow realistic patterns: frequent small stops (2–10 min), occasional longer stops, each with an HMI-reported reason (e.g. driftsstans transportbånd, nødstopp, papirbrudd i presse, planlagt vedlikehold)
-- [ ] **SIMU-05**: Plant-runs-empty events: dosing bunker current draw decays toward idle; bunker empties ~15 min after last refill; empty time is tracked as idle, not as fault downtime
-- [ ] **SIMU-06**: Bale events per fraction (Deink, Tetra/emballasjepapp, OCC, Miks) with timestamp and press, at realistic rates
-- [ ] **SIMU-07**: Current-draw time series for key motors (dosing bunker, main conveyors, presses) at ~1 min resolution
-- [ ] **SIMU-08**: Live mode: simulator keeps producing data in near-real time so the dashboard moves during a demo
+- [x] **SIMU-02**: Ingest interface (internal API) through which all plant data enters the system; simulator is just one producer
+- [x] **SIMU-03**: Simulator generates 14 days of history: two shifts per day (07–15, 15–22), ~90% availability
+- [x] **SIMU-04**: Stops follow realistic patterns: frequent small stops (2–10 min), occasional longer stops, each with an HMI-reported reason (e.g. driftsstans transportbånd, nødstopp, papirbrudd i presse, planlagt vedlikehold)
+- [x] **SIMU-05**: Plant-runs-empty events: dosing bunker current draw decays toward idle; bunker empties ~15 min after last refill; empty time is tracked as idle, not as fault downtime
+- [x] **SIMU-06**: Bale events per fraction (Deink, Tetra/emballasjepapp, OCC, Miks) with timestamp and press, at realistic rates
+- [x] **SIMU-07**: Current-draw time series for key motors (dosing bunker, main conveyors, presses) at ~1 min resolution
+- [x] **SIMU-08**: Live mode: simulator keeps producing data in near-real time so the dashboard moves during a demo
 
 ### Dashboard
 
@@ -101,13 +101,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TENA-04 | Phase 5 | Pending |
 | TENA-05 | Phase 5 | Pending |
 | SIMU-01 | Phase 1 | Complete |
-| SIMU-02 | Phase 2 | Pending |
-| SIMU-03 | Phase 2 | Pending |
-| SIMU-04 | Phase 2 | Pending |
-| SIMU-05 | Phase 2 | Pending |
-| SIMU-06 | Phase 2 | Pending |
-| SIMU-07 | Phase 2 | Pending |
-| SIMU-08 | Phase 2 | Pending |
+| SIMU-02 | Phase 2 | Complete |
+| SIMU-03 | Phase 2 | Complete |
+| SIMU-04 | Phase 2 | Complete |
+| SIMU-05 | Phase 2 | Complete |
+| SIMU-06 | Phase 2 | Complete |
+| SIMU-07 | Phase 2 | Complete |
+| SIMU-08 | Phase 2 | Complete |
 | DASH-01 | Phase 3 | Pending |
 | DASH-02 | Phase 3 | Pending |
 | DASH-03 | Phase 3 | Pending |
