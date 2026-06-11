@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-06-11)
 
 ## Current Position
 
-Phase: 5 of 5 (Administration & Demo Polish) — COMPLETE, verified
-Plan: 6 of 6 complete
-Status: MILESTONE COMPLETE — all 5 phases verified
-Last activity: 2026-06-11 — Phase 5 verified (05-VERIFICATION.md: passed, 18/18 must-haves; walkthrough 34/34)
+Phase: 6 (Calibration, Branding & Inventory) — In progress
+Plan: 06-02 complete (branding); 06-01 in progress (parallel)
+Status: In progress
+Last activity: 2026-06-11 — Completed 06-02-PLAN.md (Steco logo in app shell + login)
 
 Progress: [██████████] 100% (21 plans complete across 5 phases)
 
