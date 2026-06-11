@@ -10,8 +10,9 @@
     "db:push": "drizzle-kit push",
     "db:seed": "tsx src/db/seed.ts",
     "db:simulate": "tsx scripts/simulate.ts",
-    "db:reset": "npm run db:seed && npm run db:simulate",
-    "demo:setup": "npm run db:seed && npm run db:simulate",
+    "seed-shipments": "tsx scripts/seed-shipments.ts",
+    "db:reset": "npm run db:seed && npm run db:simulate && npm run seed-shipments",
+    "demo:setup": "npm run db:seed && npm run db:simulate && npm run seed-shipments",
     "db:studio": "drizzle-kit studio",
     "test": "vitest run"
   },
