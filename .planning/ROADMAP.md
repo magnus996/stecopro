@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Simulator & Ingest** - Realistic mock plant data through the real ingest interface
 - [x] **Phase 3: Live Dashboard** - Plant status, OEE, bale counts, current draw, stops
 - [x] **Phase 4: Shift Reports & Analysis** - Shift reports, historical reports, downtime Pareto, export
-- [ ] **Phase 5: Administration & Demo Polish** - User/tenant/plant admin and demo seed
+- [x] **Phase 5: Administration & Demo Polish** - User/tenant/plant admin and demo seed
 
 ## Phase Details
 
@@ -97,12 +97,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Demo seed creates "Steco Demo" tenant with the returpapir plant plus a second tenant proving isolation
   5. A full demo walkthrough (login as each role → dashboard → shift report → downtime analysis → admin) works without touching code
 **Plans**: 6 plans
-- [ ] 05-01-PLAN.md — Demo seed polish: tenant 2 static plant/shift/bale data + demo:setup one-command (ADMN-04)
-- [ ] 05-02-PLAN.md — Admin DAL accessors (users, plant config, system-admin cross-tenant) in one dal.ts edit
-- [ ] 05-03-PLAN.md — Plant config UI (/admin/plant): capacity/fractions/machines editable, produksjonsleder+ gate (ADMN-01)
-- [ ] 05-04-PLAN.md — User management UI (/admin/users): create/edit/deactivate, bcrypt, admin+ gate (TENA-04, ADMN-02)
-- [ ] 05-05-PLAN.md — Tenant management UI (/admin/tenants): list/create tenants + plants, system_admin only (TENA-05, ADMN-03)
-- [ ] 05-06-PLAN.md — Full role-walkthrough + role-gate + user-CRUD E2E (success criterion 5)
+- [x] 05-01-PLAN.md — Demo seed polish: tenant 2 static plant/shift/bale data + demo:setup one-command (ADMN-04)
+- [x] 05-02-PLAN.md — Admin DAL accessors (users, plant config, system-admin cross-tenant) in one dal.ts edit
+- [x] 05-03-PLAN.md — Plant config UI (/admin/plant): capacity/fractions/machines editable, produksjonsleder+ gate (ADMN-01)
+- [x] 05-04-PLAN.md — User management UI (/admin/users): create/edit/deactivate, bcrypt, admin+ gate (TENA-04, ADMN-02)
+- [x] 05-05-PLAN.md — Tenant management UI (/admin/tenants): list/create tenants + plants, system_admin only (TENA-05, ADMN-03)
+- [x] 05-06-PLAN.md — Full role-walkthrough + role-gate + user-CRUD E2E (success criterion 5)
 
 ## Progress
 
@@ -115,7 +115,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Simulator & Ingest | 4/4 | Complete | 2026-06-11 |
 | 3. Live Dashboard | 4/4 | Complete | 2026-06-11 |
 | 4. Shift Reports & Analysis | 3/3 | Complete | 2026-06-11 |
-| 5. Administration & Demo Polish | 0/6 | Planned | - |
+| 5. Administration & Demo Polish | 6/6 | Complete | 2026-06-11 |
 
 ---
 *Roadmap created: 2026-06-11*

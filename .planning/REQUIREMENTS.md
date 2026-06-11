@@ -12,8 +12,8 @@ Requirements for the technology demo. Each maps to roadmap phases.
 - [x] **TENA-01**: Users log in with email/password (seeded demo users)
 - [x] **TENA-02**: All data is isolated per tenant; users only see their own tenant's plants
 - [x] **TENA-03**: Roles with differentiated access: operator (view dashboards/shift reports), produksjonsleder (all reports + plant config), admin (user management), Steco system admin (tenant management)
-- [ ] **TENA-04**: Tenant admin can create, edit, and deactivate users within own tenant
-- [ ] **TENA-05**: System admin can create and manage tenants and their plants
+- [x] **TENA-04**: Tenant admin can create, edit, and deactivate users within own tenant
+- [x] **TENA-05**: System admin can create and manage tenants and their plants
 
 ### Data Model & Simulator
 
@@ -52,10 +52,10 @@ Requirements for the technology demo. Each maps to roadmap phases.
 
 ### Administration
 
-- [ ] **ADMN-01**: Plant configuration: fractions, shift times, nominal capacity, machine list
-- [ ] **ADMN-02**: User management UI (per tenant)
-- [ ] **ADMN-03**: Tenant management UI (system admin)
-- [ ] **ADMN-04**: Demo seed: tenant "Steco Demo" with the returpapir plant + a second minimal tenant proving isolation
+- [x] **ADMN-01**: Plant configuration: fractions, shift times, nominal capacity, machine list
+- [x] **ADMN-02**: User management UI (per tenant)
+- [x] **ADMN-03**: Tenant management UI (system admin)
+- [x] **ADMN-04**: Demo seed: tenant "Steco Demo" with the returpapir plant + a second minimal tenant proving isolation
 
 ## v2 Requirements (First Production Version)
 
@@ -98,8 +98,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TENA-01 | Phase 1 | Complete |
 | TENA-02 | Phase 1 | Complete |
 | TENA-03 | Phase 1 | Complete |
-| TENA-04 | Phase 5 | Pending |
-| TENA-05 | Phase 5 | Pending |
+| TENA-04 | Phase 5 | Complete |
+| TENA-05 | Phase 5 | Complete |
 | SIMU-01 | Phase 1 | Complete |
 | SIMU-02 | Phase 2 | Complete |
 | SIMU-03 | Phase 2 | Complete |
@@ -123,10 +123,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RPRT-02 | Phase 4 | Complete |
 | RPRT-03 | Phase 4 | Complete |
 | RPRT-04 | Phase 4 | Complete |
-| ADMN-01 | Phase 5 | Pending |
-| ADMN-02 | Phase 5 | Pending |
-| ADMN-03 | Phase 5 | Pending |
-| ADMN-04 | Phase 5 | Pending |
+| ADMN-01 | Phase 5 | Complete |
+| ADMN-02 | Phase 5 | Complete |
+| ADMN-03 | Phase 5 | Complete |
+| ADMN-04 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 32 total
