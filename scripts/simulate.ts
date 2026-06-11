@@ -122,13 +122,14 @@ async function simulate() {
   console.log('Fractions:', ctx.fractionIds)
 
   // -------------------------------------------------------------------------
-  // Idempotent cleanup (FK-safe: leaves first, leave seeds intact)
+  // Idempotent cleanup — scoped to THIS tenant only (FK-safe: leaves first).
+  // Using tenantId filter avoids wiping static seed data for other tenants.
   // -------------------------------------------------------------------------
-  console.log('Clearing prior event data...')
-  db.delete(schema.timeSeriesReadings).run()
-  db.delete(schema.baleEvents).run()
-  db.delete(schema.stopEvents).run()
-  db.delete(schema.shifts).run()
+  console.log('Clearing prior event data for tenant', tenantId, '...')
+  db.delete(schema.timeSeriesReadings).where(eq(schema.timeSeriesReadings.tenantId, tenantId)).run()
+  db.delete(schema.baleEvents).where(eq(schema.baleEvents.tenantId, tenantId)).run()
+  db.delete(schema.stopEvents).where(eq(schema.stopEvents.tenantId, tenantId)).run()
+  db.delete(schema.shifts).where(eq(schema.shifts.tenantId, tenantId)).run()
   console.log('Cleared: time_series_readings, bale_events, stop_events, shifts')
 
   // -------------------------------------------------------------------------
