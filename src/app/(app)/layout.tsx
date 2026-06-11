@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { getCurrentUser } from '@/lib/dal'
 import Nav from '@/components/Nav'
 import LogoutButton from '@/components/LogoutButton'
+import PwaRegistrar from '@/components/PwaRegistrar'
 import type { UserRole } from '@/db/schema'
 
 const ROLE_LABELS: Record<UserRole, string> = {
@@ -78,6 +79,8 @@ export default async function AppLayout({
 
       {/* Main content area */}
       <main className="flex-1 overflow-y-auto p-6">{children}</main>
+
+      <PwaRegistrar />
     </div>
   )
 }
