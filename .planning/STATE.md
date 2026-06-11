@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-06-11)
 
 **Core value:** Plant owners see exactly what their sorting plant is doing — uptime, OEE, stops with reasons, and bales produced per fraction — without walking the floor or reading PLC logs.
-**Current focus:** Phase 5 - Administration & Demo Polish
+**Current focus:** Phase 5 complete — Demo milestone ready for /gsd:complete-milestone
 
 ## Current Position
 
-Phase: 5 of 5 (Administration & Demo Polish) — In progress
-Plan: 05-01, 05-02, and 05-04 complete
-Status: In progress
-Last activity: 2026-06-11 — Completed 05-04-PLAN.md (user management pages + actions)
+Phase: 5 of 5 (Administration & Demo Polish) — Phase complete
+Plan: 6 of 6 in current phase
+Status: Phase complete — all plans done
+Last activity: 2026-06-11 — Completed 05-06-PLAN.md (full role walkthrough E2E)
 
-Progress: [████████░░] ~80% of milestone (15 plans complete, phase 5 unplanned)
+Progress: [██████████] 100% of milestone (all 5 phases complete)
 
 ## Performance Metrics
 
@@ -99,6 +99,8 @@ Recent decisions affecting current work:
 - getUsersForTenant scoped to session.tenantId even for system_admin — system_admin manages own tenant on /admin/users; cross-tenant user mgmt out of scope
 - system_admin cross-tenant DAL accessors (getTenantList, getTenantById, getSystemAdminPlants) guard role BEFORE bypassing tenant filter — role check is the security boundary
 - getTenantById tenantId param is lookup key only (not security boundary); security = system_admin role check preceding the query
+- E2E blocked() helper: passes if status != 200 OR body lacks expected heading — handles both 307 redirects (proxy/page-level) and RSC role-gate redirects
+- E2E user CRUD: npx tsx -e inline snippets using better-sqlite3 directly — avoids RSC multipart form complexity, tests !user.active auth path precisely
 
 ### Pending Todos
 
@@ -117,10 +119,10 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-11T09:17:23Z
-Stopped at: Completed 05-05-PLAN.md (tenant management pages + actions) — Phase 5 plan 5 complete
+Last session: 2026-06-11T09:23:36Z
+Stopped at: Completed 05-06-PLAN.md (full role walkthrough E2E) — Phase 5 plan 6 complete (ALL PLANS DONE)
 Resume file: None
 
 ---
 *State initialized: 2026-06-11*
-*Next step: /gsd:plan-phase 5*
+*Next step: /gsd:complete-milestone*
