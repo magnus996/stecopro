@@ -127,7 +127,8 @@ export function startLive(): void {
   const nowMs = now.getTime()
 
   if (maxRow?.maxAt !== null && maxRow?.maxAt !== undefined) {
-    const lastMs = maxRow.maxAt // stored as ms (Drizzle integer/timestamp mode)
+    // Drizzle integer({ mode: 'timestamp' }) stores Unix seconds (not ms) in better-sqlite3
+    const lastMs = maxRow.maxAt * 1000
     const gapMs = nowMs - lastMs
 
     if (gapMs > 60_000) {
@@ -143,7 +144,9 @@ export function startLive(): void {
 
       // runBackfill already skips future shifts and is idempotent via ensureShift.
       // We pass a custom "now" so it only fills up to the current moment.
-      runBackfill(adapter, ctx, { daysBack: Math.ceil(gapMs / 86400000) + 1, now })
+      // Use the capped window (not the actual gap) to compute daysBack.
+      const cappedGapMs = nowMs - catchupFromMs
+      runBackfill(adapter, ctx, { daysBack: Math.ceil(cappedGapMs / 86400000) + 1, now })
     }
   }
 
