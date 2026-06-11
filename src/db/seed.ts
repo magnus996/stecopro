@@ -39,7 +39,13 @@ async function seed() {
 
   // ------------------------------------------------------------------
   // Idempotent cleanup (FK-safe order: leaves → parents)
+  // Phase 7 tables must be deleted before their referenced tables
   // ------------------------------------------------------------------
+  db.delete(schema.stopAcknowledgements).run()
+  db.delete(schema.stopComments).run()
+  db.delete(schema.shiftNotes).run()
+  db.delete(schema.photos).run()
+  db.delete(schema.pushSubscriptions).run()
   db.delete(schema.timeSeriesReadings).run()
   db.delete(schema.baleEvents).run()
   db.delete(schema.baleShipments).run()
