@@ -3,13 +3,15 @@
 // which Next.js detects as a dynamic API, making this route auto-dynamic.
 // No explicit `export const dynamic = 'force-dynamic'` required.
 
-import { getCurrentUser, getPlants, getDashboardData } from '@/lib/dal'
+import { getCurrentUser, getPlants, getDashboardData, getStockByFraction } from '@/lib/dal'
 import AutoRefresh from './components/AutoRefresh'
 import PlantStatusCard from './components/PlantStatusCard'
 import OeeCard from './components/OeeCard'
 import BaleCountsCard from './components/BaleCountsCard'
 import RecentStopsCard from './components/RecentStopsCard'
 import CurrentDrawChart from './components/CurrentDrawChart'
+import LagerstatusCard from './components/LagerstatusCard'
+import ProduksjonIDagChart from './components/ProduksjonIDagChart'
 
 /** Format a Date as 'HH:mm' in Oslo timezone. */
 function toOsloHHmm(d: Date): string {
@@ -51,6 +53,8 @@ export default async function DashboardPage() {
   }
 
   const data = await getDashboardData(plant.id)
+  const stock = await getStockByFraction(plant.id)
+  const stockRows = stock.map((s) => ({ name: s.name, stock: s.stock }))
   const nowMs = data.now.getTime()
 
   // Serialise currentDraw readings: recordedAt (Date) -> 'HH:mm' Oslo label
@@ -130,6 +134,16 @@ export default async function DashboardPage() {
         <BaleCountsCard currentShift={currentShiftBales} today={todayBales} />
 
         <RecentStopsCard stops={recentStopRows} />
+
+        <LagerstatusCard rows={stockRows} />
+      </div>
+
+      {/* Full-width Produksjon i dag bar chart */}
+      <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+        <h2 className="mb-4 text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+          Produksjon i dag
+        </h2>
+        <ProduksjonIDagChart data={todayBales} />
       </div>
 
       {/* Full-width current-draw chart */}
