@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-06-11)
 
 ## Current Position
 
-Phase: 3 of 5 (Live Dashboard) — COMPLETE, verified
-Plan: 4 of 4 complete
-Status: Phase complete, ready to plan Phase 4
-Last activity: 2026-06-11 — Phase 3 verified (03-VERIFICATION.md: passed, 13/13 must-haves)
+Phase: 4 of 5 (Shift Reports & Analysis) — In progress
+Plan: 1 of 3 in current phase complete
+Status: In progress
+Last activity: 2026-06-11 — Completed 04-01-PLAN.md (report DAL accessors)
 
-Progress: [██████░░░░] ~60% of milestone (12 plans complete, phases 4-5 unplanned)
+Progress: [███████░░░] ~65% of milestone (13 plans complete, phase 5 unplanned)
 
 ## Performance Metrics
 
@@ -76,6 +76,10 @@ Recent decisions affecting current work:
 - stopType (fault/idle/planned) does NOT change OEE math — all reduce availability equally
 - NOMINAL_BALES_PER_SHIFT = 120 defined locally in dal.ts (not imported from simulator params.ts — avoids coupling simulator-side code into DAL)
 - getDashboardData composing accessor: verifySession + Promise.all sub-queries; PlantState and DashboardData types exported for plan 04
+- Report DAL: stops and bales ALWAYS in separate queries — combined LEFT JOIN produces cartesian product (267120s vs 2520s verified live DB)
+- Historical shift OEE: calculateOee(nowMs=shiftEnd.getTime()) — deterministic, identical to dashboard numbers
+- getDayVsEveningComparison reuses getShiftReportList internally (single OEE path, no divergence risk)
+- Oslo calendar day grouping done in JS via Intl.DateTimeFormat — avoids UTC-vs-Oslo mismatch in SQL date functions
 - PlantState derivation order: freshness (>3min stale) → outside_shift → open stop type → running
 - getBaleCountsByFraction uses LEFT JOIN fractions→baleEvents so zero-bale fractions always appear
 - osloDateStr derived via Intl.DateTimeFormat('en-CA', {timeZone:'Europe/Oslo'}) — returns YYYY-MM-DD natively
@@ -103,8 +107,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-11T07:55:41Z
-Stopped at: Completed 03-04-PLAN.md (live dashboard UI + E2E) — Phase 3 plan 4 complete
+Last session: 2026-06-11T08:29:23Z
+Stopped at: Completed 04-01-PLAN.md (report DAL accessors) — Phase 4 plan 1 complete
 Resume file: None
 
 ---
