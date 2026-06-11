@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-06-11)
 ## Current Position
 
 Phase: 2 of 5 (Simulator & Ingest) — In progress
-Plan: 1 of 4 complete (plan 02-01 done; 02-02 in parallel execution)
+Plan: 2 of 4 complete (02-01 + 02-02 done; 02-03, 02-04 remain)
 Status: In progress
-Last activity: 2026-06-11 — Completed 02-01-PLAN.md (ingest interface + SQLite adapter + WAL)
+Last activity: 2026-06-11 — Completed 02-02-PLAN.md (simulator engine: time helpers + params + engine)
 
-Progress: [████▌░░░░░] ~25% of milestone (5 plans complete: 4 foundation + 02-01)
+Progress: [█████░░░░░] ~30% of milestone (6 plans complete: 4 foundation + 02-01 + 02-02)
 
 ## Performance Metrics
 
@@ -57,6 +57,9 @@ Recent decisions affecting current work:
 - IngestAdapter is write-only interface; implementations receive Drizzle db in constructor (not @/db/index which is server-only)
 - SqliteIngestAdapter.flush() uses db.transaction(tx => {...}) callback form — NOT IIFE pattern
 - WAL mode + busy_timeout=5000 + synchronous=NORMAL added to src/db/index.ts for concurrent simulator access
+- BUNKER_REFILL_PERIOD_MIN=120 (not 15): large dosing bunker takes ~2h to empty, not 15min
+- Stop duration last band capped at 20-40 min (not 30-120): weighted avg stop ~9.65 min targets ~90% availability
+- simulateShift() uses abstract machineId (0,1,2) and fractionId (0-3); runner maps to real DB ids
 
 ### Pending Todos
 
@@ -75,8 +78,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-11T06:26:10Z
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-06-11T06:30:33Z
+Stopped at: Completed 02-02-PLAN.md (simulator engine)
 Resume file: None
 
 ---
