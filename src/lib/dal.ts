@@ -7,6 +7,13 @@ import 'server-only'
 // This is the single enforcement point for multi-tenant data isolation.
 // When adding new accessors: call verifySession() first, use session.tenantId
 // in every WHERE clause. Never pass tenantId in from a page or component.
+//
+// EXCEPTION (system_admin cross-tenant accessors, Phase 5):
+// getTenantList, getTenantById, getSystemAdminPlants do NOT filter by
+// session.tenantId — they are preceded by a hard role guard
+// (session.role !== 'system_admin' → throw 'Forbidden') so the bypass is
+// controlled and explicit. The tenantId parameter in getTenantById is a
+// lookup key, not a security boundary.
 // ---------------------------------------------------------------------------
 import { cache } from 'react'
 import { cookies } from 'next/headers'
@@ -19,6 +26,7 @@ import {
 } from '@/db/schema'
 import { eq, and, lte, gt, gte, lt, desc, asc, isNull, isNotNull, or, sql } from 'drizzle-orm'
 import type { SessionPayload } from './definitions'
+import type { UserRole } from '@/db/schema'
 import { getShiftType, getShiftBoundsUtc } from './time'
 import { calculateOee, QUALITY_FACTOR } from './oee'
 import type { OeeResult } from './oee'
@@ -995,4 +1003,288 @@ export const getShiftEnergyProxy = cache(async (
     nominalCurrentA: bunker.nominalCurrentA,
     readingCount: Number(result?.readingCount ?? 0),
   }
+})
+
+// ---------------------------------------------------------------------------
+// Admin accessors — Phase 5
+// Tenant-scoped: getUsersForTenant, getUserById, getPlantConfig
+// System-admin cross-tenant: getTenantList, getTenantById, getSystemAdminPlants
+// ---------------------------------------------------------------------------
+
+// ----- Tenant-scoped admin read accessors ----------------------------------
+
+/** Safe user fields returned by admin user list and detail accessors. */
+export interface AdminUserRow {
+  id: number
+  name: string
+  email: string
+  role: UserRole
+  active: boolean
+  createdAt: Date
+}
+
+/**
+ * Returns all users for the current tenant, ordered by name.
+ * Role gate: admin or system_admin only.
+ * NOTE: scoped to session.tenantId even for system_admin — on /admin/users
+ * the system_admin manages their own tenant (Steco). Cross-tenant user
+ * management is out of scope (see RESEARCH decision).
+ */
+export const getUsersForTenant = cache(async (): Promise<AdminUserRow[]> => {
+  const session = await verifySession()
+  if (!(['admin', 'system_admin'] as UserRole[]).includes(session.role)) {
+    throw new Error('Forbidden')
+  }
+  return db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      role: users.role,
+      active: users.active,
+      createdAt: users.createdAt,
+    })
+    .from(users)
+    .where(eq(users.tenantId, session.tenantId))
+    .orderBy(asc(users.name))
+})
+
+/**
+ * Returns a single user by id, scoped to the current tenant.
+ * Role gate: admin or system_admin only.
+ * Tenant scope prevents cross-tenant access (RESEARCH Pitfall 5/6).
+ */
+export const getUserById = cache(async (userId: number): Promise<AdminUserRow | null> => {
+  const session = await verifySession()
+  if (!(['admin', 'system_admin'] as UserRole[]).includes(session.role)) {
+    throw new Error('Forbidden')
+  }
+  const [row] = await db
+    .select({
+      id: users.id,
+      name: users.name,
+      email: users.email,
+      role: users.role,
+      active: users.active,
+      createdAt: users.createdAt,
+    })
+    .from(users)
+    .where(
+      and(
+        eq(users.id, userId),
+        eq(users.tenantId, session.tenantId),
+      )
+    )
+    .limit(1)
+  return row ?? null
+})
+
+/** Shape returned by getPlantConfig. */
+export interface PlantConfig {
+  plant: {
+    id: number
+    name: string
+    description: string | null
+    nominalCapacityTph: number | null
+  }
+  fractions: {
+    id: number
+    name: string
+    sortOrder: number
+  }[]
+  machines: {
+    id: number
+    name: string
+    type: string
+    nominalCurrentA: number | null
+  }[]
+}
+
+/**
+ * Returns the plant config (plant + fractions + machines) for a given plant,
+ * scoped to the current tenant.
+ * Role gate: produksjonsleder or above (operators are blocked).
+ * Returns null if plant not found for this tenant.
+ */
+export const getPlantConfig = cache(async (plantId: number): Promise<PlantConfig | null> => {
+  const session = await verifySession()
+  if (session.role === 'operator') {
+    throw new Error('Forbidden')
+  }
+  const [plantRow] = await db
+    .select({
+      id: plants.id,
+      name: plants.name,
+      description: plants.description,
+      nominalCapacityTph: plants.nominalCapacityTph,
+    })
+    .from(plants)
+    .where(
+      and(
+        eq(plants.id, plantId),
+        eq(plants.tenantId, session.tenantId),
+      )
+    )
+    .limit(1)
+  if (!plantRow) return null
+
+  const [fractionRows, machineRows] = await Promise.all([
+    db
+      .select({ id: fractions.id, name: fractions.name, sortOrder: fractions.sortOrder })
+      .from(fractions)
+      .where(
+        and(
+          eq(fractions.tenantId, session.tenantId),
+          eq(fractions.plantId, plantId),
+        )
+      )
+      .orderBy(asc(fractions.sortOrder)),
+    db
+      .select({
+        id: machines.id,
+        name: machines.name,
+        type: machines.type,
+        nominalCurrentA: machines.nominalCurrentA,
+      })
+      .from(machines)
+      .where(
+        and(
+          eq(machines.tenantId, session.tenantId),
+          eq(machines.plantId, plantId),
+        )
+      )
+      .orderBy(asc(machines.id)),
+  ])
+
+  return {
+    plant: plantRow,
+    fractions: fractionRows,
+    machines: machineRows,
+  }
+})
+
+// ----- System-admin cross-tenant read accessors ----------------------------
+// These accessors intentionally do NOT filter by session.tenantId.
+// Each MUST guard session.role === 'system_admin' before executing the query —
+// the role check IS the security boundary here (RESEARCH Pattern 2 / Pitfall 1).
+
+/** Shape returned by getTenantList. */
+export interface TenantListRow {
+  id: number
+  name: string
+  slug: string
+  createdAt: Date
+  userCount: number
+  plantCount: number
+}
+
+/**
+ * Returns all tenants with user and plant counts.
+ * Role gate: system_admin ONLY — all other roles receive 'Forbidden'.
+ * No tenantId filter applied (cross-tenant view).
+ */
+export const getTenantList = cache(async (): Promise<TenantListRow[]> => {
+  const session = await verifySession()
+  if (session.role !== 'system_admin') {
+    throw new Error('Forbidden')
+  }
+
+  const tenantRows = await db
+    .select({ id: tenants.id, name: tenants.name, slug: tenants.slug, createdAt: tenants.createdAt })
+    .from(tenants)
+    .orderBy(asc(tenants.name))
+
+  // Count users per tenant
+  const userCounts = await db
+    .select({ tenantId: users.tenantId, count: sql<number>`count(*)` })
+    .from(users)
+    .groupBy(users.tenantId)
+
+  // Count plants per tenant
+  const plantCounts = await db
+    .select({ tenantId: plants.tenantId, count: sql<number>`count(*)` })
+    .from(plants)
+    .groupBy(plants.tenantId)
+
+  const userCountMap = new Map(userCounts.map(r => [r.tenantId, Number(r.count)]))
+  const plantCountMap = new Map(plantCounts.map(r => [r.tenantId, Number(r.count)]))
+
+  return tenantRows.map(t => ({
+    id: t.id,
+    name: t.name,
+    slug: t.slug,
+    createdAt: t.createdAt,
+    userCount: userCountMap.get(t.id) ?? 0,
+    plantCount: plantCountMap.get(t.id) ?? 0,
+  }))
+})
+
+/**
+ * Returns a single tenant by id plus its plants.
+ * Role gate: system_admin ONLY.
+ * The tenantId parameter is a lookup key, not a security boundary — the
+ * system_admin role check above is the security boundary.
+ * Returns null if tenant not found.
+ */
+export const getTenantById = cache(async (tenantId: number) => {
+  const session = await verifySession()
+  if (session.role !== 'system_admin') {
+    throw new Error('Forbidden')
+  }
+
+  const [tenantRow] = await db
+    .select({ id: tenants.id, name: tenants.name, slug: tenants.slug, createdAt: tenants.createdAt })
+    .from(tenants)
+    .where(eq(tenants.id, tenantId))
+    .limit(1)
+
+  if (!tenantRow) return null
+
+  const tenantPlants = await db
+    .select({
+      id: plants.id,
+      name: plants.name,
+      description: plants.description,
+      nominalCapacityTph: plants.nominalCapacityTph,
+    })
+    .from(plants)
+    .where(eq(plants.tenantId, tenantId))
+    .orderBy(asc(plants.name))
+
+  return {
+    tenant: tenantRow,
+    plants: tenantPlants,
+  }
+})
+
+/** Shape returned by getSystemAdminPlants. */
+export interface SystemAdminPlantRow {
+  id: number
+  name: string
+  tenantId: number
+  tenantName: string
+  nominalCapacityTph: number | null
+}
+
+/**
+ * Returns all plants across all tenants, joined with their tenant name.
+ * Role gate: system_admin ONLY — no tenantId filter applied.
+ */
+export const getSystemAdminPlants = cache(async (): Promise<SystemAdminPlantRow[]> => {
+  const session = await verifySession()
+  if (session.role !== 'system_admin') {
+    throw new Error('Forbidden')
+  }
+
+  return db
+    .select({
+      id: plants.id,
+      name: plants.name,
+      tenantId: plants.tenantId,
+      tenantName: tenants.name,
+      nominalCapacityTph: plants.nominalCapacityTph,
+    })
+    .from(plants)
+    .innerJoin(tenants, eq(tenants.id, plants.tenantId))
+    .orderBy(asc(tenants.name), asc(plants.name))
 })
