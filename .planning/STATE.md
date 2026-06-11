@@ -10,24 +10,25 @@ See: .planning/PROJECT.md (updated 2026-06-11)
 ## Current Position
 
 Phase: 2 of 5 (Simulator & Ingest) — In progress
-Plan: 2 of 4 complete (02-01 + 02-02 done; 02-03, 02-04 remain)
+Plan: 3 of 4 complete (02-01 + 02-02 + 02-03 done; 02-04 remains)
 Status: In progress
-Last activity: 2026-06-11 — Completed 02-02-PLAN.md (simulator engine: time helpers + params + engine)
+Last activity: 2026-06-11 — Completed 02-03-PLAN.md (simulator runner + backfill)
 
-Progress: [█████░░░░░] ~30% of milestone (6 plans complete: 4 foundation + 02-01 + 02-02)
+Progress: [██████░░░░] ~35% of milestone (7 plans complete: 4 foundation + 02-01 + 02-02 + 02-03)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: 20 min
-- Total execution time: 79 min
+- Total plans completed: 7
+- Average duration: ~15 min
+- Total execution time: ~99 min
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1 Foundation | 4/4 | 79 min | 20 min |
+| 2 Simulator & Ingest | 3/4 | ~20 min | ~7 min |
 
 *Updated after each plan completion*
 
@@ -60,6 +61,9 @@ Recent decisions affecting current work:
 - BUNKER_REFILL_PERIOD_MIN=120 (not 15): large dosing bunker takes ~2h to empty, not 15min
 - Stop duration last band capped at 20-40 min (not 30-120): weighted avg stop ~9.65 min targets ~90% availability
 - simulateShift() uses abstract machineId (0,1,2) and fractionId (0-3); runner maps to real DB ids
+- runner.ts is DB-connection-free — adapter always injected; live mode (plan 04) reuses runBackfill
+- SQLite column names: runState, startAt, endAt are camelCase (not snake_case) — raw queries must quote them
+- verify-backfill.sh writes temp .ts assertions inside scripts/ (not /tmp) for node_modules resolution
 
 ### Pending Todos
 
@@ -78,8 +82,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-06-11T06:30:33Z
-Stopped at: Completed 02-02-PLAN.md (simulator engine)
+Last session: 2026-06-11T06:42:41Z
+Stopped at: Completed 02-03-PLAN.md (simulator runner + backfill)
 Resume file: None
 
 ---
