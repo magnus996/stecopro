@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-06-11)
 
 **Core value:** Plant owners see exactly what their sorting plant is doing — uptime, OEE, stops with reasons, and bales produced per fraction — without walking the floor or reading PLC logs.
-**Current focus:** Phase 6 complete — demo calibrated, branded, with bale inventory
+**Current focus:** Phase 7 in progress — PWA operator companion (data foundation + PWA shell running in parallel)
 
 ## Current Position
 
-Phase: 6 of 6 (Calibration, Branding & Inventory) — COMPLETE, verified
-Plan: 4 of 4 complete
-Status: All phases complete and verified
-Last activity: 2026-06-11 — Phase 6 verified (06-VERIFICATION.md: passed, 6/6 criteria; all regression suites green)
+Phase: 7 of 7 (PWA Operator)
+Plan: 07-01 complete (07-02 parallel)
+Status: In progress
+Last activity: 2026-06-11 — Completed 07-01-PLAN.md (5 tables, getApiSession, seed order)
 
-Progress: [██████████] 100% (25 plans complete across 6 phases)
+Progress: [██████████░] ~96% (26+ plans complete)
 
 ## Performance Metrics
 
