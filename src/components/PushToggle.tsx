@@ -27,8 +27,11 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
   return outputArray as Uint8Array<ArrayBuffer>
 }
 
+type UnsupportedReason = 'insecure' | 'ios_not_installed' | 'generic'
+
 export default function PushToggle() {
   const [supported, setSupported] = useState<boolean | null>(null)
+  const [unsupportedReason, setUnsupportedReason] = useState<UnsupportedReason>('generic')
   const [subscribed, setSubscribed] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -37,6 +40,18 @@ export default function PushToggle() {
   useEffect(() => {
     // Check support on mount
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+      // Figure out WHY so the user gets actionable guidance instead of a dead end.
+      const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent)
+      const standalone =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (navigator as unknown as { standalone?: boolean }).standalone === true
+      if (!window.isSecureContext) {
+        setUnsupportedReason('insecure')
+      } else if (isIos && !standalone) {
+        setUnsupportedReason('ios_not_installed')
+      } else {
+        setUnsupportedReason('generic')
+      }
       setSupported(false)
       return
     }
@@ -129,9 +144,34 @@ export default function PushToggle() {
   }
 
   if (!supported) {
+    if (unsupportedReason === 'insecure') {
+      return (
+        <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-300">
+          <p className="font-medium">Varsler krever sikker tilkobling (HTTPS)</p>
+          <p className="mt-1">
+            Du er koblet til over http. Start serveren med HTTPS (f.eks.{' '}
+            <code className="font-mono text-xs">next dev --experimental-https</code>) og åpne
+            siden på nytt for å aktivere varsler.
+          </p>
+        </div>
+      )
+    }
+    if (unsupportedReason === 'ios_not_installed') {
+      return (
+        <div className="rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-300">
+          <p className="font-medium">Installer appen for å få varsler på iPhone</p>
+          <ol className="mt-2 list-decimal space-y-1 pl-5">
+            <li>Trykk på Del-knappen i Safari (firkanten med pil opp)</li>
+            <li>Velg «Legg til på Hjem-skjerm»</li>
+            <li>Åpne StecoPro fra Hjem-skjermen og aktiver varsler her</li>
+          </ol>
+          <p className="mt-2 text-xs">Krever iOS 16.4 eller nyere.</p>
+        </div>
+      )
+    }
     return (
-      <p className="text-sm text-gray-500">
-        Push-varsler støttes ikke på denne enheten. Installer appen på startskjermen for å aktivere varsler.
+      <p className="text-sm text-zinc-500 dark:text-zinc-400">
+        Push-varsler støttes ikke i denne nettleseren.
       </p>
     )
   }

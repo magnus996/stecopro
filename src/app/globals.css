@@ -24,3 +24,23 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Mobile app feel:
+   - iOS Safari auto-zooms when focusing inputs with font-size < 16px;
+     forcing 16px on form fields prevents the zoom jump.
+   - touch-action: manipulation removes the double-tap-to-zoom delay on
+     buttons/links so taps register immediately. */
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+button,
+a,
+input,
+label {
+  touch-action: manipulation;
+}
