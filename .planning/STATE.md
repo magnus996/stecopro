@@ -5,21 +5,21 @@
 See: .planning/PROJECT.md (updated 2026-06-11)
 
 **Core value:** Plant owners see exactly what their sorting plant is doing — uptime, OEE, stops with reasons, and bales produced per fraction — without walking the floor or reading PLC logs.
-**Current focus:** Milestone complete — Technology Demo done
+**Current focus:** Phase 6 complete — demo calibrated, branded, with bale inventory
 
 ## Current Position
 
-Phase: 6 (Calibration, Branding & Inventory) — COMPLETE
-Plan: 06-01 complete (calibration); 06-02 complete (branding); 06-03 complete (inventory backend); 06-04 complete (inventory UI + dashboard widgets)
-Status: Phase 6 complete — all 4 plans done
-Last activity: 2026-06-11 — Completed 06-04-PLAN.md (inventory UI + dashboard widgets)
+Phase: 6 of 6 (Calibration, Branding & Inventory) — COMPLETE, verified
+Plan: 4 of 4 complete
+Status: All phases complete and verified
+Last activity: 2026-06-11 — Phase 6 verified (06-VERIFICATION.md: passed, 6/6 criteria; all regression suites green)
 
 Progress: [██████████] 100% (25 plans complete across 6 phases)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
+- Total plans completed: 25
 - Average duration: ~10 min
 - Total execution time: ~101 min
 
@@ -131,4 +131,4 @@ Resume file: None
 
 ---
 *State initialized: 2026-06-11*
-*Next step: /gsd:audit-milestone (optional) or /gsd:complete-milestone*
+*Next step: /gsd:audit-milestone or /gsd:complete-milestone*
