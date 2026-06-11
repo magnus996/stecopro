@@ -89,10 +89,10 @@ console.log('ASSERT5|' + (idleNotFaultPass ? '1' : '0') + '|bunker_faults=' + bu
 // Columns: "endAt", "startAt" (Drizzle camelCase, confirmed via PRAGMA table_info)
 // Stored as milliseconds since epoch (integer mode: 'timestamp' uses ms)
 const shortStops = (db.prepare(
-  'SELECT COUNT(*) AS n FROM stop_events WHERE "endAt" IS NOT NULL AND ("endAt" - "startAt") / 1000 <= 600'
+  'SELECT COUNT(*) AS n FROM stop_events WHERE "endAt" IS NOT NULL AND ("endAt" - "startAt") <= 600'
 ).get() as any).n
 const longStops  = (db.prepare(
-  'SELECT COUNT(*) AS n FROM stop_events WHERE "endAt" IS NOT NULL AND ("endAt" - "startAt") / 1000 >= 1800'
+  'SELECT COUNT(*) AS n FROM stop_events WHERE "endAt" IS NOT NULL AND ("endAt" - "startAt") >= 1800'
 ).get() as any).n
 const spreadPass = shortStops > longStops
 console.log('ASSERT6|' + (spreadPass ? '1' : '0') + '|short_stops=' + shortStops + ' long_stops=' + longStops + ' (expect short > long)')
