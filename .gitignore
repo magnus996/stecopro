@@ -43,6 +43,9 @@ yarn-error.log*
 *.db-wal
 *.db-shm
 
+# uploaded operator photos (served only via authenticated /api/photos/[id])
+/uploads
+
 # vercel
 .vercel
 
