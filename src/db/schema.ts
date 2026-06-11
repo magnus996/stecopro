@@ -142,3 +142,23 @@ export const timeSeriesReadings = table('time_series_readings', {
   index('ts_machine_time_idx').on(t.machineId, t.recordedAt),
   index('ts_tenant_time_idx').on(t.tenantId, t.recordedAt),
 ])
+
+// ---------------------------------------------------------------------------
+// bale_shipments — outbound shipment records per fraction
+// Stock per fraction = produced bale_events − shipped baleCount
+// ---------------------------------------------------------------------------
+export const baleShipments = table('bale_shipments', {
+  id: int().primaryKey({ autoIncrement: true }),
+  tenantId: int('tenant_id').notNull().references(() => tenants.id),
+  plantId: int('plant_id').notNull().references(() => plants.id),
+  fractionId: int('fraction_id').notNull().references(() => fractions.id),
+  baleCount: int('bale_count').notNull(),
+  shippedAt: integer({ mode: 'timestamp' }).notNull(),
+  note: text(),
+  createdById: int('created_by_id').references(() => users.id),
+  createdAt: integer({ mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+}, (t) => [
+  index('bale_shipments_plant_time_idx').on(t.plantId, t.shippedAt),
+  index('bale_shipments_tenant_idx').on(t.tenantId),
+  index('bale_shipments_fraction_idx').on(t.fractionId),
+])
