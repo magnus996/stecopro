@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-06-11)
 ## Current Position
 
 Phase: 6 (Calibration, Branding & Inventory) — In progress
-Plan: 06-02 complete (branding); 06-01 in progress (parallel)
-Status: In progress
-Last activity: 2026-06-11 — Completed 06-02-PLAN.md (Steco logo in app shell + login)
+Plan: 06-01 complete (calibration); 06-02 complete (branding)
+Status: In progress — both wave-1 plans complete
+Last activity: 2026-06-11 — Completed 06-01-PLAN.md (simulator calibration) + 06-02-PLAN.md (branding)
 
 Progress: [██████████] 100% (21 plans complete across 5 phases)
 
