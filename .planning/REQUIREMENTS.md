@@ -136,3 +136,30 @@ Which phases cover which requirements. Updated during roadmap creation.
 ---
 *Requirements defined: 2026-06-11*
 *Last updated: 2026-06-11 after roadmap creation*
+
+## v1.1 Requirements (Phase 6 — Calibration, Branding & Inventory)
+
+### Branding
+- [ ] **BRND-01**: Steco logo (public/logo-hvit.png) replaces the "StecoPro" wordmark in app shell and login page
+
+### Simulator Calibration
+- [ ] **SIMU-09**: Simulator calibrated to real plant: ~10 t/h nominal (30,000 t/yr, 2 shifts, 80% design uptime), bales ~1 t (~135 bales/day at 90% sim availability), fraction mix 50% deink / 10% OCC / 8% tetra / 32% miks, bunker motor 11 kW drawing 10-15 A loaded and 4-6 A empty (empty threshold ~8 A); OEE performance nominal aligned
+
+### Dashboard
+- [ ] **DASH-09**: Dashboard shows a bar chart of bales produced today per fraction
+
+### Inventory
+- [ ] **INVT-01**: Bale production continuously fills per-fraction inventory (stock = produced − shipped)
+- [ ] **INVT-02**: Users register outbound shipments (fraction, bale count) which reduce stock; shipment history visible
+- [ ] **INVT-03**: Dashboard widget shows current bale stock per fraction
+
+### Traceability (v1.1)
+
+| Req ID | Phase | Status |
+|--------|-------|--------|
+| BRND-01 | Phase 6 | Pending |
+| SIMU-09 | Phase 6 | Pending |
+| DASH-09 | Phase 6 | Pending |
+| INVT-01 | Phase 6 | Pending |
+| INVT-02 | Phase 6 | Pending |
+| INVT-03 | Phase 6 | Pending |

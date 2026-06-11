@@ -17,6 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Live Dashboard** - Plant status, OEE, bale counts, current draw, stops
 - [x] **Phase 4: Shift Reports & Analysis** - Shift reports, historical reports, downtime Pareto, export
 - [x] **Phase 5: Administration & Demo Polish** - User/tenant/plant admin and demo seed
+- [ ] **Phase 6: Calibration, Branding & Inventory** - Real-plant calibration, logo, production chart, bale inventory
 
 ## Phase Details
 
@@ -104,10 +105,23 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] 05-05-PLAN.md — Tenant management UI (/admin/tenants): list/create tenants + plants, system_admin only (TENA-05, ADMN-03)
 - [x] 05-06-PLAN.md — Full role-walkthrough + role-gate + user-CRUD E2E (success criterion 5)
 
+### Phase 6: Calibration, Branding & Inventory
+**Goal**: The demo matches the real plant's numbers and look, and tracks bale inventory through production and shipments
+**Depends on**: Phase 5
+**Requirements**: BRND-01, SIMU-09, DASH-09, INVT-01, INVT-02, INVT-03
+**Success Criteria** (what must be TRUE):
+  1. Steco logo shown in app shell and on login page instead of the text wordmark
+  2. Simulated bunker current draw is 10-15 A loaded / 4-6 A empty; chart threshold reflects it
+  3. Daily production is ~135 bales split ~50/10/8/32 (deink/OCC/tetra/miks); OEE performance stays plausible (not degraded by stale nominals)
+  4. Dashboard has a bar chart of bales produced today per fraction
+  5. Inventory page shows stock per fraction (produced - shipped); registering a shipment reduces stock and appears in history
+  6. Dashboard widget shows current stock per fraction
+**Plans**: TBD during planning
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -116,6 +130,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 3. Live Dashboard | 4/4 | Complete | 2026-06-11 |
 | 4. Shift Reports & Analysis | 3/3 | Complete | 2026-06-11 |
 | 5. Administration & Demo Polish | 6/6 | Complete | 2026-06-11 |
+| 6. Calibration, Branding & Inventory | 0/? | Not started | - |
 
 ---
 *Roadmap created: 2026-06-11*
