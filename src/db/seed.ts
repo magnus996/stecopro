@@ -133,7 +133,7 @@ async function seed() {
       tenantId: tenant1.id,
       name: 'Returpapir Linje 1',
       description: 'Sorteringslinje for returpapir og emballasjepapp',
-      nominalCapacityTph: 12,
+      nominalCapacityTph: 10,
       createdAt: new Date(),
     })
     .returning()
@@ -158,7 +158,7 @@ async function seed() {
       plantId: plant1.id,
       name: 'Doseringsbunker',
       type: 'bunker',
-      nominalCurrentA: 45,
+      nominalCurrentA: 15,
       createdAt: new Date(),
     },
     {

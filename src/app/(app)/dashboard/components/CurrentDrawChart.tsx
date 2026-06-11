@@ -52,7 +52,7 @@ export default function CurrentDrawChart({ data }: CurrentDrawChartProps) {
             stroke="#a1a1aa"
           />
           <YAxis
-            domain={[0, 60]}
+            domain={[0, 20]}
             unit=" A"
             tick={{ fontSize: 11 }}
             stroke="#a1a1aa"
