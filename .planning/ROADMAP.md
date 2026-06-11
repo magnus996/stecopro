@@ -116,7 +116,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Dashboard has a bar chart of bales produced today per fraction
   5. Inventory page shows stock per fraction (produced - shipped); registering a shipment reduces stock and appears in history
   6. Dashboard widget shows current stock per fraction
-**Plans**: TBD during planning
+**Plans**: 4 plans
+- [ ] 06-01-PLAN.md — Recalibrate simulator/dashboard: bunker 10-15/4-6 A, ~135 bales/day @ 50/10/8/32, NOMINAL 80, chart axis/threshold, green tests (SIMU-09)
+- [ ] 06-02-PLAN.md — Steco logo in app shell (sidebar + mobile) and login page (BRND-01)
+- [ ] 06-03-PLAN.md — Inventory backend: bale_shipments table, stock/history DAL, registerShipment action, seed-shipments wired into demo:setup (INVT-01)
+- [ ] 06-04-PLAN.md — Inventory UI (/inventory: stock + shipment form + history) + dashboard Lagerstatus card + Produksjon-i-dag bar chart + E2E (INVT-02, INVT-03, DASH-09)
 
 ## Progress
 
@@ -130,7 +134,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Live Dashboard | 4/4 | Complete | 2026-06-11 |
 | 4. Shift Reports & Analysis | 3/3 | Complete | 2026-06-11 |
 | 5. Administration & Demo Polish | 6/6 | Complete | 2026-06-11 |
-| 6. Calibration, Branding & Inventory | 0/? | Not started | - |
+| 6. Calibration, Branding & Inventory | 0/4 | Planned | - |
 
 ---
 *Roadmap created: 2026-06-11*
