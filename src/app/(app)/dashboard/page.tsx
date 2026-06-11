@@ -1,4 +1,4 @@
-import { getCurrentUser, getPlants } from '@/lib/dal'
+import { getCurrentUser, getPlants, getTenant } from '@/lib/dal'
 import type { UserRole } from '@/db/schema'
 
 const ROLE_LABELS: Record<UserRole, string> = {
@@ -11,6 +11,7 @@ const ROLE_LABELS: Record<UserRole, string> = {
 export default async function DashboardPage() {
   const user = await getCurrentUser()
   const plants = await getPlants()
+  const tenant = await getTenant()
 
   // getCurrentUser redirects to /login if not authenticated (via verifySession in DAL)
   // So user is guaranteed to be non-null here if we reach this point.
@@ -40,8 +41,8 @@ export default async function DashboardPage() {
             <dd className="mt-0.5 text-sm font-medium text-zinc-900 dark:text-zinc-50">{ROLE_LABELS[user.role]}</dd>
           </div>
           <div>
-            <dt className="text-xs text-zinc-500 dark:text-zinc-400">Tenant-ID</dt>
-            <dd className="mt-0.5 text-sm text-zinc-700 dark:text-zinc-300">{user.tenantId}</dd>
+            <dt className="text-xs text-zinc-500 dark:text-zinc-400">Tenant</dt>
+            <dd className="mt-0.5 text-sm text-zinc-700 dark:text-zinc-300">{tenant?.name ?? user.tenantId}</dd>
           </div>
         </dl>
       </div>

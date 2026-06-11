@@ -13,7 +13,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { decrypt } from './session'
 import { db } from '@/db'
-import { users, plants } from '@/db/schema'
+import { users, plants, tenants } from '@/db/schema'
 import { eq, and } from 'drizzle-orm'
 import type { SessionPayload } from './definitions'
 
@@ -47,6 +47,16 @@ export const getCurrentUser = cache(async () => {
       )
     )
   return user ?? null
+})
+
+// Returns the current tenant's record (name, slug).
+export const getTenant = cache(async () => {
+  const session = await verifySession()
+  const [tenant] = await db
+    .select({ id: tenants.id, name: tenants.name, slug: tenants.slug })
+    .from(tenants)
+    .where(eq(tenants.id, session.tenantId))
+  return tenant ?? null
 })
 
 // Example tenant-scoped accessor: returns plants for the current tenant.
