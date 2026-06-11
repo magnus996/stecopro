@@ -4,6 +4,7 @@
 
 import { getPlants, getRecentNotifiableStops } from '@/lib/dal'
 import PushToggle from '@/components/PushToggle'
+import TriggerStopButton from '@/components/TriggerStopButton'
 import Link from 'next/link'
 
 /** Format a Date as 'HH:mm' in Oslo timezone. */
@@ -65,6 +66,16 @@ export default async function VarslerPage() {
         </h2>
         <PushToggle />
       </div>
+
+      {/* Dev-only demo trigger */}
+      {process.env.NODE_ENV !== 'production' && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-6 dark:border-amber-900 dark:bg-amber-950">
+          <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-amber-700 dark:text-amber-400">
+            Demo
+          </h2>
+          <TriggerStopButton />
+        </div>
+      )}
 
       {/* Recent notifiable stops (last 48h) */}
       <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
