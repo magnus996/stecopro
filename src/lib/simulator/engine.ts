@@ -18,10 +18,13 @@ import {
   BUNKER_EMPTY_MAX_MIN,
   CURRENT_BUNKER_FULL_MIN,
   CURRENT_BUNKER_FULL_MAX,
+  CURRENT_BUNKER_EMPTY_MIN,
+  CURRENT_BUNKER_EMPTY_MAX,
   CURRENT_CONVEYOR_RUN_MIN,
   CURRENT_CONVEYOR_RUN_MAX,
   CURRENT_PRESS_PEAK_MIN,
   CURRENT_PRESS_PEAK_MAX,
+  BALE_RATES_PER_SHIFT,
 } from './params'
 
 // ---------------------------------------------------------------------------
@@ -142,8 +145,14 @@ export function simulateShift(input: SimulateShiftInput): SimEvent[] {
   const totalMinutes = Math.floor(shiftDurationMs / 60000)
 
   // ---- Bale rate setup ----
-  // Abstract fractions: 0=deink(45/shift), 1=occ(35/shift), 2=tetra(25/shift), 3=miks(15/shift)
-  const baleRates = [45, 35, 25, 15]
+  // Abstract fractions: 0=deink(40/shift), 1=occ(8/shift), 2=tetra(6/shift), 3=miks(26/shift)
+  // Engine order [deink, occ, tetra, miks] matches runner.ts ABSTRACT_FRACTION_NAMES.
+  const baleRates = [
+    BALE_RATES_PER_SHIFT.deink,
+    BALE_RATES_PER_SHIFT.occ,
+    BALE_RATES_PER_SHIFT.tetra,
+    BALE_RATES_PER_SHIFT.miks,
+  ]
   // Convert to per-minute probabilities for each fraction
   const baleProbabilities = baleRates.map(r => r / totalMinutes)
 
@@ -195,7 +204,7 @@ export function simulateShift(input: SimulateShiftInput): SimEvent[] {
 
     // Machine 0: bunker
     const bunkerCurrent = isBunkerEmpty
-      ? randFloat(rng, 5, 8)
+      ? randFloat(rng, CURRENT_BUNKER_EMPTY_MIN, CURRENT_BUNKER_EMPTY_MAX)
       : isRunning
       ? randFloat(rng, CURRENT_BUNKER_FULL_MIN, CURRENT_BUNKER_FULL_MAX)
       : 0

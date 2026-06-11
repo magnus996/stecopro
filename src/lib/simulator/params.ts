@@ -65,13 +65,15 @@ export const BUNKER_EMPTY_MIN_MIN = 3        // min idle duration when empty
 export const BUNKER_EMPTY_MAX_MIN = 12       // max idle duration when empty
 
 // ---------------------------------------------------------------------------
-// Motor current ranges (400V IE3 class, values in amperes)
+// Motor current ranges (amperes)
+// Bunker: 11 kW dosing motor drawing 10-15 A loaded / 4-6 A running empty.
+// Empty-detection threshold ~8 A (sits between empty band 4-6 A and loaded band 10-15 A).
 // ---------------------------------------------------------------------------
 
-export const CURRENT_BUNKER_FULL_MIN = 35     // A
-export const CURRENT_BUNKER_FULL_MAX = 50     // A
-export const CURRENT_BUNKER_EMPTY_MIN = 5     // A (running but depleted)
-export const CURRENT_BUNKER_EMPTY_MAX = 8     // A
+export const CURRENT_BUNKER_FULL_MIN = 10     // A (loaded)
+export const CURRENT_BUNKER_FULL_MAX = 15     // A (loaded)
+export const CURRENT_BUNKER_EMPTY_MIN = 4     // A (running but depleted)
+export const CURRENT_BUNKER_EMPTY_MAX = 6     // A (running but depleted)
 export const CURRENT_CONVEYOR_RUN_MIN = 25    // A
 export const CURRENT_CONVEYOR_RUN_MAX = 35    // A
 export const CURRENT_PRESS_PEAK_MIN = 60      // A
@@ -81,13 +83,15 @@ export const CURRENT_PRESS_IDLE_MAX = 20      // A
 
 // ---------------------------------------------------------------------------
 // Bale rates per fraction per 8h shift
+// Total: 80 bales/8h-shift (~10 bales/h).
+// Weight mix: 50% deink / 10% OCC / 8% tetra / 32% miks.
 // ---------------------------------------------------------------------------
 
 export const BALE_RATES_PER_SHIFT: Record<string, number> = {
-  deink: 45,
-  occ: 35,
-  tetra: 25,
-  miks: 15,
+  deink: 40,
+  occ: 8,
+  tetra: 6,
+  miks: 26,
 }
 
 // ---------------------------------------------------------------------------
