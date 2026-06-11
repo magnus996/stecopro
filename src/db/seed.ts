@@ -42,6 +42,7 @@ async function seed() {
   // ------------------------------------------------------------------
   db.delete(schema.timeSeriesReadings).run()
   db.delete(schema.baleEvents).run()
+  db.delete(schema.baleShipments).run()
   db.delete(schema.stopEvents).run()
   db.delete(schema.shifts).run()
   db.delete(schema.machines).run()
