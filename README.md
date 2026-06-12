@@ -66,6 +66,32 @@ tailscale serve http:3000 https:443
 
 **iOS-krav:** Safari 16.4+ og «Legg til på Hjem-skjermen» (`Share → Add to Home Screen`) før push-varsler aktiveres. Bruk `/varsler` som fallback uten installasjon.
 
+### Feilsøking mobil (lærdom fra praksis)
+
+Symptomet «siden vises, men ingen knapper virker / varselknappen mangler» har tre kjente årsaker — sjekk i denne rekkefølgen:
+
+1. **Next blokkerer dev-JS for andre enheter.** Next 16 blokkerer cross-origin
+   tilgang til `/_next/*` i dev som standard — telefonen får HTML men ingen
+   JavaScript. Maskinens LAN-adresser må ligge i `allowedDevOrigins` i
+   [next.config.ts](next.config.ts). Ved nytt nett/ny IP: legg til IP-en der.
+2. **Sertifikatet dekker ikke adressen telefonen bruker.** Står det
+   «Ikke sikkert» i Safari-adressefeltet finnes ikke Push-API-et, og iOS henter
+   verken app-ikon eller service worker. Sertifikatet i `certificates/` må ha
+   riktig IP/hostnavn i SAN, og mkcert-rot-CA-en
+   (`~/Library/Application Support/mkcert/rootCA.pem`) må være installert og
+   gitt full tillit på telefonen (Innstillinger → Generelt → Om →
+   Tillitsinnstillinger for sertifikater). Tips: bruk
+   `https://<maskinnavn>.local:3000` fra telefonen — mDNS-navnet overlever
+   nettverksbytte, i motsetning til IP-en.
+3. **Turbopack-cachen serverer gammel kode.** Hvis endringer ikke når
+   nettleseren selv etter omstart: stopp serveren, `rm -rf .next`, start igjen.
+   Installerte iOS-webapper cacher i tillegg aggressivt — tvangslukk appen,
+   eller slett og legg til ikonet på nytt.
+
+Diagnoselinjen på `/varsler` (vises når varsler er utilgjengelig) forteller
+hvilken brikke som mangler: sikker kontekst, service worker, push-API eller
+standalone-modus.
+
 ### VAPID-nøkler
 
 Push-varsler krever VAPID-nøkler i `.env.local`:
