@@ -1,0 +1,63 @@
+# Steco Pro — homelab deploy via Docker + Cloudflare Tunnel.
+#
+# One-time:   cp .env.docker.example .env  && edit it
+# Build/seed: docker compose --profile seed run --rm seed
+# Run:        docker compose up -d --build
+#
+# Compose reads .env automatically for ${VAR} substitution below.
+
+services:
+  app:
+    build:
+      context: .
+      target: runner
+      args:
+        # Inlined into the client bundle at build time — must be the tunnel hostname.
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:?set NEXT_PUBLIC_APP_URL in .env}
+    image: stecopro:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # Persistent SQLite db on the named volume (overrides .env / default).
+      DB_FILE_NAME: /data/stecopro.db
+    volumes:
+      - db:/data
+      - uploads:/app/uploads
+    expose:
+      - "3000"
+    # cloudflared reaches the app over the compose network as http://app:3000.
+    # Uncomment to ALSO expose it on the LAN (HTTP only — push/PWA need HTTPS):
+    # ports:
+    #   - "3000:3000"
+
+  # One-shot: create the schema (drizzle-kit push) and seed demo data.
+  # Runs against the same db volume. Re-run any time to reset demo data.
+  #   docker compose --profile seed run --rm seed
+  seed:
+    build:
+      context: .
+      target: tools
+    image: stecopro-tools:latest
+    profiles: ["seed"]
+    # Same uid as the app so the db files it writes stay writable by the runner.
+    user: "1001:1001"
+    env_file: .env
+    environment:
+      DB_FILE_NAME: /data/stecopro.db
+      HOME: /home/nextjs
+    volumes:
+      - db:/data
+    command: sh -c "npm run db:push && npm run demo:setup"
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN:?set TUNNEL_TOKEN in .env}
+    depends_on:
+      - app
+
+volumes:
+  db:
+  uploads:
