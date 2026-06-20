@@ -314,6 +314,47 @@ export const getBunkerCurrentDraw = cache(async (
     .orderBy(asc(timeSeriesReadings.recordedAt))
 })
 
+/**
+ * Returns optical sorter (Tomra) belt-coverage readings for [fromAt, toAt), ordered ascending.
+ * coveragePct = how much of the conveyor belt is covered by material (0-100 %).
+ * Returns [] if no optical_sorter machine found for this plant.
+ */
+export const getOpticalSorterUtilization = cache(async (
+  plantId: number,
+  fromAt: Date,
+  toAt: Date,
+) => {
+  const session = await verifySession()
+  const [opticalMachine] = await db
+    .select({ id: machines.id })
+    .from(machines)
+    .where(
+      and(
+        eq(machines.tenantId, session.tenantId),
+        eq(machines.plantId, plantId),
+        eq(machines.type, 'optical_sorter'),
+      )
+    )
+    .limit(1)
+  if (!opticalMachine) return []
+
+  return db
+    .select({
+      recordedAt: timeSeriesReadings.recordedAt,
+      coveragePct: timeSeriesReadings.coveragePct,
+    })
+    .from(timeSeriesReadings)
+    .where(
+      and(
+        eq(timeSeriesReadings.tenantId, session.tenantId),
+        eq(timeSeriesReadings.machineId, opticalMachine.id),
+        gte(timeSeriesReadings.recordedAt, fromAt),
+        lt(timeSeriesReadings.recordedAt, toAt),
+      )
+    )
+    .orderBy(asc(timeSeriesReadings.recordedAt))
+})
+
 // Nominal bales per 8h shift = sum of BALE_RATES_PER_SHIFT
 // (deink 40 + occ 8 + tetra 6 + miks 26 = 80).
 const NOMINAL_BALES_PER_SHIFT = 80
@@ -340,6 +381,7 @@ export interface DashboardData {
     stopType: string
   }[]
   currentDraw: { recordedAt: Date; currentA: number | null; runState: boolean | null }[]
+  beltUtilization: { recordedAt: Date; coveragePct: number | null }[]
   latestReadingAt: Date | null
   now: Date
   shift: { startAt: Date; endAt: Date; shiftType: string } | null
@@ -743,6 +785,9 @@ export const getDashboardData = cache(async (plantId: number): Promise<Dashboard
   const drawTo = shiftEnd && shiftEnd.getTime() > nowMs ? now : (shiftEnd ?? now)
   const currentDraw = await getBunkerCurrentDraw(plantId, drawFrom, drawTo)
 
+  // -- Belt utilisation (Tomra optical sorter): same window as current draw --
+  const beltUtilization = await getOpticalSorterUtilization(plantId, drawFrom, drawTo)
+
   return {
     plant: {
       id: plant?.id ?? plantId,
@@ -759,6 +804,7 @@ export const getDashboardData = cache(async (plantId: number): Promise<Dashboard
     },
     recentStops,
     currentDraw,
+    beltUtilization,
     latestReadingAt: latestBunker?.recordedAt ?? null,
     now,
     shift: shift

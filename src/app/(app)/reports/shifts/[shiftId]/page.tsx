@@ -4,7 +4,18 @@
 // (the DAL filters by session.tenantId) — we call notFound() in that case.
 
 import { notFound } from 'next/navigation'
-import { getCurrentUser, getPlants, getShiftReportDetail, getShiftEnergyProxy } from '@/lib/dal'
+import { getCurrentUser, getPlants, getShiftReportDetail, getShiftEnergyProxy, getOpticalSorterUtilization, getBunkerCurrentDraw } from '@/lib/dal'
+import CurrentDrawChart from '@/app/(app)/dashboard/components/CurrentDrawChart'
+import BeltUtilizationChart from '@/app/(app)/dashboard/components/BeltUtilizationChart'
+
+/** Format a Date as 'HH:mm' in Oslo timezone. */
+function toOsloHHmm(d: Date): string {
+  return new Intl.DateTimeFormat('no', {
+    timeZone: 'Europe/Oslo',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(d)
+}
 
 /** Format a Date as 'dd.MM.yyyy' in Oslo timezone. */
 function toOsloDate(d: Date): string {
@@ -74,6 +85,31 @@ export default async function ShiftDetailPage({
   if (!detail) notFound()  // null = shift not found OR belongs to another tenant
 
   const energy = await getShiftEnergyProxy(plant.id, id)
+
+  // Feed bunker (matebunker) current draw across the shift window
+  const bunkerRows = await getBunkerCurrentDraw(
+    plant.id,
+    detail.shift.startAt,
+    detail.shift.endAt,
+  )
+  const bunkerChartData = bunkerRows.map((r) => ({
+    label: toOsloHHmm(r.recordedAt),
+    currentA: Number(r.currentA ?? 0),
+  }))
+
+  // Belt utilisation (Tomra optical sorter) across the shift window
+  const beltRows = await getOpticalSorterUtilization(
+    plant.id,
+    detail.shift.startAt,
+    detail.shift.endAt,
+  )
+  const beltChartData = beltRows
+    .filter((r) => r.coveragePct != null)
+    .map((r) => ({ label: toOsloHHmm(r.recordedAt), coveragePct: Number(r.coveragePct) }))
+  const beltAvg =
+    beltChartData.length > 0
+      ? Math.round(beltChartData.reduce((sum, r) => sum + r.coveragePct, 0) / beltChartData.length)
+      : null
 
   const shiftLabel = detail.shift.shiftType === 'day' ? 'Dag' : 'Kveld'
   const dateLabel = toOsloDate(detail.shift.startAt)
@@ -220,21 +256,38 @@ export default async function ShiftDetailPage({
         </table>
       </div>
 
-      {/* Energy indication */}
-      {energy && energy.avgCurrentA != null && (
+      {/* Feed bunker (matebunker) current draw */}
+      {bunkerChartData.length > 0 && (
         <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
           <h2 className="mb-4 text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            Energiindikasjon
+            Strømtrekk – Doseringsbunker
           </h2>
-          <p className="text-sm text-zinc-700 dark:text-zinc-300">
-            Gjennomsnittlig strømtrekk (Doseringsbunker):{' '}
-            <span className="font-semibold">{energy.avgCurrentA} A</span>
-            {energy.nominalCurrentA != null && (
-              <> av nominelt {energy.nominalCurrentA} A</>
-            )}
+          <CurrentDrawChart data={bunkerChartData} />
+          {energy && energy.avgCurrentA != null && (
+            <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300">
+              Gjennomsnittlig strømtrekk: <span className="font-semibold">{energy.avgCurrentA} A</span>
+              {energy.nominalCurrentA != null && <> av nominelt {energy.nominalCurrentA} A</>}
+            </p>
+          )}
+          <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
+            Stiplet linje ved 8 A = grense for «Bunker tom»-deteksjon. Indikasjon, ikke kWh.
+          </p>
+        </div>
+      )}
+
+      {/* Belt utilisation (Tomra optical sorter) */}
+      {beltChartData.length > 0 && (
+        <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+          <h2 className="mb-4 text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+            Utnyttelsesgrad – Tomra Autosort 1
+          </h2>
+          <BeltUtilizationChart data={beltChartData} />
+          <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300">
+            Gjennomsnittlig utnyttelse: <span className="font-semibold">{beltAvg} %</span>
           </p>
           <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
-            Indikasjon, ikke kWh
+            Utnyttelsesgrad normalisert mot metningspunktet (100 %, stiplet linje). Vedvarende fall
+            indikerer redusert materialtilførsel.
           </p>
         </div>
       )}

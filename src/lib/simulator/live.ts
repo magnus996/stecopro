@@ -75,7 +75,7 @@ export function startLive(): void {
     machineByType[m.type] = m.id
   }
 
-  const requiredMachineTypes = ['bunker', 'conveyor', 'press'] as const
+  const requiredMachineTypes = ['bunker', 'conveyor', 'press', 'optical_sorter'] as const
   for (const t of requiredMachineTypes) {
     if (machineByType[t] === undefined) {
       console.warn(`[simulator] live mode: machine type '${t}' not found — skipping start (run db:seed first)`)
@@ -112,6 +112,7 @@ export function startLive(): void {
       bunker: machineByType['bunker'],
       conveyor: machineByType['conveyor'],
       press: machineByType['press'],
+      opticalSorter: machineByType['optical_sorter'],
     },
     fractionIds: fractionByName,
   }

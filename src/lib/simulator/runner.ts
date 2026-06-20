@@ -20,9 +20,10 @@ import type { IngestAdapter } from '@/lib/ingest/interface'
 /**
  * Resolved real-DB ids discovered by the standalone script.
  * Abstract engine indices map to these ids:
- *   machineIds.bunker    ← abstract index 0
- *   machineIds.conveyor  ← abstract index 1
- *   machineIds.press     ← abstract index 2
+ *   machineIds.bunker        ← abstract index 0
+ *   machineIds.conveyor      ← abstract index 1
+ *   machineIds.press         ← abstract index 2
+ *   machineIds.opticalSorter ← abstract index 3
  *   fractionIds[name]    ← abstract index 0=deink, 1=occ, 2=tetra, 3=miks
  */
 export interface SimContext {
@@ -32,6 +33,7 @@ export interface SimContext {
     bunker: number
     conveyor: number
     press: number
+    opticalSorter: number
   }
   /** Fraction name → real DB id, covering Deink, Tetra/emballasjepapp, OCC, Miks */
   fractionIds: Record<string, number>
@@ -55,6 +57,7 @@ function resolveMachineId(
     case 0: return ctx.machineIds.bunker
     case 1: return ctx.machineIds.conveyor
     case 2: return ctx.machineIds.press
+    case 3: return ctx.machineIds.opticalSorter
     default: return ctx.machineIds.bunker
   }
 }
@@ -158,7 +161,7 @@ export function runBackfill(
         switch (ev.type) {
           case 'reading': {
             const machineId = resolveMachineId(ev.machineId, ctx)
-            adapter.reportReading(machineId, new Date(ev.at), ev.currentA, ev.runState)
+            adapter.reportReading(machineId, new Date(ev.at), ev.currentA, ev.runState, ev.coveragePct ?? null)
             break
           }
 
@@ -242,7 +245,7 @@ export function advanceLiveTick(
     switch (ev.type) {
       case 'reading': {
         const machineId = resolveMachineId(ev.machineId, ctx)
-        adapter.reportReading(machineId, new Date(ev.at), ev.currentA, ev.runState)
+        adapter.reportReading(machineId, new Date(ev.at), ev.currentA, ev.runState, ev.coveragePct ?? null)
         break
       }
       case 'stop': {

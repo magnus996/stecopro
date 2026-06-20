@@ -2,8 +2,11 @@ export type StopType = 'fault' | 'idle' | 'planned'
 export type ShiftType = 'day' | 'evening'
 
 export interface IngestAdapter {
-  /** Record one minute of motor current draw for a machine. runState: true=running, false=stopped. */
-  reportReading(machineId: number, recordedAt: Date, currentA: number, runState: boolean): void
+  /**
+   * Record one minute of motor current draw for a machine. runState: true=running, false=stopped.
+   * coveragePct: belt material coverage 0-100 % for optical sorters; omit/null for other machines.
+   */
+  reportReading(machineId: number, recordedAt: Date, currentA: number, runState: boolean, coveragePct?: number | null): void
 
   /** Plant-level stop begins. Returns the new stop_events row id. reason is an HMI string (Norwegian). */
   reportStop(plantId: number, startAt: Date, reason: string, stopType: StopType): number

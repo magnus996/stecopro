@@ -137,6 +137,7 @@ export const timeSeriesReadings = table('time_series_readings', {
   machineId: int('machine_id').notNull().references(() => machines.id),
   recordedAt: integer({ mode: 'timestamp' }).notNull(),
   currentA: real('current_a'),           // motor current draw in Amps
+  coveragePct: real('coverage_pct'),     // belt material coverage 0-100 % (optical sorters only; NULL otherwise)
   runState: integer({ mode: 'boolean' }), // 1 = running, 0 = stopped
 }, (t) => [
   index('ts_machine_time_idx').on(t.machineId, t.recordedAt),

@@ -80,6 +80,22 @@ export const CURRENT_PRESS_PEAK_MIN = 60      // A
 export const CURRENT_PRESS_PEAK_MAX = 90      // A
 export const CURRENT_PRESS_IDLE_MIN = 15      // A
 export const CURRENT_PRESS_IDLE_MAX = 20      // A
+// Optical sorter (Tomra Autosort): feed belt + valve bank + NIR lamp draw ~8-12 A running.
+export const CURRENT_OPTICAL_RUN_MIN = 8      // A
+export const CURRENT_OPTICAL_RUN_MAX = 12     // A
+
+// ---------------------------------------------------------------------------
+// Optical sorter utilisation ("beleggsgrad"/saturation, normalised percent 0-120)
+// The Tomra is the line bottleneck: operators raise the bunker feed speed until
+// the sorter is saturated, so normal running sits AT saturation (~100 %, with a
+// little overfeed headroom up to 120 %). It only dips when the bunker runs empty
+// (material starved → COVERAGE_EMPTY band). A full stop reads 0 %.
+// ---------------------------------------------------------------------------
+export const COVERAGE_RUN_MIN = 92    // % (saturated, ~100)
+export const COVERAGE_RUN_MAX = 108   // % (slight overfeed)
+export const COVERAGE_EMPTY_MIN = 10  // % (bunker empty → belt starved)
+export const COVERAGE_EMPTY_MAX = 40  // %
+export const COVERAGE_TARGET_PCT = 100 // % saturation reference line ("Metning")
 
 // ---------------------------------------------------------------------------
 // Bale rates per fraction per 8h shift

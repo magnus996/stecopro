@@ -9,7 +9,7 @@ import PlantStatusCard from './components/PlantStatusCard'
 import OeeCard from './components/OeeCard'
 import BaleCountsCard from './components/BaleCountsCard'
 import RecentStopsCard from './components/RecentStopsCard'
-import CurrentDrawChart from './components/CurrentDrawChart'
+import BunkerAutosortChart from './components/BunkerAutosortChart'
 import LagerstatusCard from './components/LagerstatusCard'
 import ProduksjonIDagChart from './components/ProduksjonIDagChart'
 
@@ -57,11 +57,33 @@ export default async function DashboardPage() {
   const stockRows = stock.map((s) => ({ name: s.name, stock: s.stock }))
   const nowMs = data.now.getTime()
 
-  // Serialise currentDraw readings: recordedAt (Date) -> 'HH:mm' Oslo label
-  const chartData = data.currentDraw.map((r) => ({
-    label: toOsloHHmm(r.recordedAt),
-    currentA: Number(r.currentA ?? 0),
-  }))
+  // Merge bunker current draw + Autosort utilisation onto a shared time base.
+  // Both series are sampled at identical minute marks, so we key by recordedAt.
+  const trendByTime = new Map<
+    number,
+    { label: string; currentA: number | null; coveragePct: number | null }
+  >()
+  for (const r of data.currentDraw) {
+    const t = r.recordedAt.getTime()
+    trendByTime.set(t, {
+      label: toOsloHHmm(r.recordedAt),
+      currentA: r.currentA != null ? Number(r.currentA) : null,
+      coveragePct: null,
+    })
+  }
+  for (const r of data.beltUtilization) {
+    const t = r.recordedAt.getTime()
+    const entry = trendByTime.get(t) ?? {
+      label: toOsloHHmm(r.recordedAt),
+      currentA: null,
+      coveragePct: null,
+    }
+    entry.coveragePct = r.coveragePct != null ? Number(r.coveragePct) : null
+    trendByTime.set(t, entry)
+  }
+  const trendData = [...trendByTime.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([, v]) => v)
 
   // Serialise recentStops: startAt/endAt (Date) -> strings + durationMin number
   const recentStopRows = data.recentStops.map((s) => {
@@ -146,14 +168,16 @@ export default async function DashboardPage() {
         <ProduksjonIDagChart data={todayBales} />
       </div>
 
-      {/* Full-width current-draw chart */}
+      {/* Full-width combined trend: bunker current draw + Autosort utilisation */}
       <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
         <h2 className="mb-4 text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-          Strømtrekk – Doseringsbunker
+          Strømtrekk (bunker) og utnyttelse (Tomra Autosort 1)
         </h2>
-        <CurrentDrawChart data={chartData} />
+        <BunkerAutosortChart data={trendData} />
         <p className="mt-2 text-xs text-zinc-400 dark:text-zinc-500">
-          Stiplet linje ved 8 A = grense for &laquo;Bunker tom&raquo;-deteksjon
+          Strømtrekk doseringsbunker (blå, A – venstre akse) og utnyttelsesgrad for Tomra Autosort 1
+          (grønn, % – høyre akse). Utnyttelsen er normalisert mot metningspunktet (100 %); vedvarende
+          fall indikerer redusert materialtilførsel.
         </p>
       </div>
     </div>

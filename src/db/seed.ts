@@ -184,6 +184,14 @@ async function seed() {
       nominalCurrentA: 75,
       createdAt: new Date(),
     },
+    {
+      tenantId: tenant1.id,
+      plantId: plant1.id,
+      name: 'Tomra Autosort 1',
+      type: 'optical_sorter',
+      nominalCurrentA: 10,
+      createdAt: new Date(),
+    },
   ])
 
   // ------------------------------------------------------------------

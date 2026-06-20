@@ -76,7 +76,7 @@ async function simulate() {
     machineByType[m.type] = m.id
   }
 
-  const requiredMachineTypes = ['bunker', 'conveyor', 'press'] as const
+  const requiredMachineTypes = ['bunker', 'conveyor', 'press', 'optical_sorter'] as const
   for (const t of requiredMachineTypes) {
     if (machineByType[t] === undefined) {
       console.error(`ERROR: Machine type '${t}' not found. Run \`npm run db:seed\` first.`)
@@ -113,6 +113,7 @@ async function simulate() {
       bunker: machineByType['bunker'],
       conveyor: machineByType['conveyor'],
       press: machineByType['press'],
+      opticalSorter: machineByType['optical_sorter'],
     },
     fractionIds: fractionByName,
   }

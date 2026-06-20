@@ -1,7 +1,15 @@
 import { describe, it, expect } from 'vitest'
 import { osloHour, getShiftType, getShiftBoundsUtc } from './time'
 import { simulateShift } from './engine'
-import { FAULT_REASONS, IDLE_REASONS, PLANNED_REASONS } from './params'
+import {
+  FAULT_REASONS,
+  IDLE_REASONS,
+  PLANNED_REASONS,
+  COVERAGE_RUN_MIN,
+  COVERAGE_RUN_MAX,
+  COVERAGE_EMPTY_MIN,
+  COVERAGE_EMPTY_MAX,
+} from './params'
 
 // ============================================================
 // Feature A: Oslo-timezone shift attribution
@@ -206,6 +214,48 @@ describe('simulateShift', () => {
       const ok = a === 0 || (a >= 4 && a <= 6) || (a >= 10 && a <= 15)
       expect(ok).toBe(true)
     }
+  })
+
+  it('COVERAGE_EMITTED: optical sorter (machine 3) has one coverage reading per minute', () => {
+    const events = simulateShift({ startMs: dayBounds.startMs, endMs: dayBounds.endMs, seed: 42 })
+    const optical = events.filter(e => e.type === 'reading' && e.machineId === 3)
+    const totalMinutes = (dayBounds.endMs - dayBounds.startMs) / 60000
+    expect(optical.length).toBe(totalMinutes)
+    for (const r of optical) {
+      if (r.type !== 'reading') continue
+      expect(typeof r.coveragePct).toBe('number')
+    }
+  })
+
+  it('COVERAGE_BANDS: utilisation is 0-120, running at saturation, otherwise dipped/zero', () => {
+    const events = simulateShift({ startMs: dayBounds.startMs, endMs: dayBounds.endMs, seed: 42 })
+    const optical = events.filter(e => e.type === 'reading' && e.machineId === 3)
+    for (const r of optical) {
+      if (r.type !== 'reading') continue
+      const c = r.coveragePct as number
+      expect(c).toBeGreaterThanOrEqual(0)
+      expect(c).toBeLessThanOrEqual(120)
+      if (r.runState) {
+        // running: Tomra saturated (~100 %)
+        expect(c >= COVERAGE_RUN_MIN && c <= COVERAGE_RUN_MAX).toBe(true)
+      } else {
+        // bunker-empty (starved) → COVERAGE_EMPTY band, or full stop → 0
+        expect(c === 0 || (c >= COVERAGE_EMPTY_MIN && c <= COVERAGE_EMPTY_MAX)).toBe(true)
+      }
+    }
+  })
+
+  it('COVERAGE_ISOLATION: adding the coverage sub-stream does not change the main stream', () => {
+    // Stops, bales and bunker/conveyor/press currents must be unaffected by the
+    // optical-sorter readings (which draw from an independent rng). We assert this
+    // indirectly: the non-optical events are stable for a fixed seed.
+    const events = simulateShift({ startMs: dayBounds.startMs, endMs: dayBounds.endMs, seed: 42 })
+    const bunkerReadings = events.filter(e => e.type === 'reading' && e.machineId === 0).length
+    const baleCount = events.filter(e => e.type === 'bale').length
+    // Same counts as the historical (pre-coverage) seed-42 day shift.
+    expect(bunkerReadings).toBe(480)
+    expect(baleCount).toBeGreaterThanOrEqual(60)
+    expect(baleCount).toBeLessThanOrEqual(95)
   })
 
   it('BALE_MIX: deink is the largest fraction and total is plausible (~70-90 for an 8h shift)', () => {

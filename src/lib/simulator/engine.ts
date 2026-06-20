@@ -24,6 +24,12 @@ import {
   CURRENT_CONVEYOR_RUN_MAX,
   CURRENT_PRESS_PEAK_MIN,
   CURRENT_PRESS_PEAK_MAX,
+  CURRENT_OPTICAL_RUN_MIN,
+  CURRENT_OPTICAL_RUN_MAX,
+  COVERAGE_RUN_MIN,
+  COVERAGE_RUN_MAX,
+  COVERAGE_EMPTY_MIN,
+  COVERAGE_EMPTY_MAX,
   BALE_RATES_PER_SHIFT,
 } from './params'
 
@@ -32,7 +38,7 @@ import {
 // ---------------------------------------------------------------------------
 
 export type SimEvent =
-  | { type: 'reading'; machineId: number; at: number; currentA: number; runState: boolean }
+  | { type: 'reading'; machineId: number; at: number; currentA: number; runState: boolean; coveragePct?: number | null }
   | { type: 'stop'; at: number; reason: string; stopType: 'fault' | 'idle' | 'planned' }
   | { type: 'stopEnd'; at: number }
   | { type: 'bale'; fractionId: number; at: number }
@@ -133,12 +139,16 @@ function scheduleBunkerEmpty(
  * Walk the shift minute-by-minute, emitting SimEvents.
  * The shift runs from startMs to endMs (exclusive).
  * Readings are emitted at each minute mark (startMs, startMs+60000, ...).
- * Machine IDs are abstract indices (0=bunker, 1=conveyor, 2=press).
+ * Machine IDs are abstract indices (0=bunker, 1=conveyor, 2=press, 3=optical_sorter).
  * Fraction IDs are abstract indices (0=deink, 1=occ, 2=tetra, 3=miks).
  */
 export function simulateShift(input: SimulateShiftInput): SimEvent[] {
   const { startMs, endMs, seed } = input
   const rng = mulberry32(seed)
+  // Independent sub-stream for the optical sorter so adding the Tomra coverage
+  // signal does NOT perturb the main rng sequence — existing stop/bale/current
+  // output (and the tests asserting on it) reproduce byte-for-byte.
+  const coverageRng = mulberry32((seed ^ 0x9e3779b9) | 0)
   const events: SimEvent[] = []
 
   const shiftDurationMs = endMs - startMs
@@ -233,6 +243,23 @@ export function simulateShift(input: SimulateShiftInput): SimEvent[] {
       machineId: 2,
       at: atMs,
       currentA: pressCurrent,
+      runState: isRunning,
+    })
+
+    // Machine 3: optical sorter (Tomra) — belt material coverage + motor current.
+    // Uses ONLY coverageRng so the main rng sequence stays untouched.
+    const opticalCoverage = isBunkerEmpty
+      ? randFloat(coverageRng, COVERAGE_EMPTY_MIN, COVERAGE_EMPTY_MAX)
+      : isRunning
+      ? randFloat(coverageRng, COVERAGE_RUN_MIN, COVERAGE_RUN_MAX)
+      : 0
+    const opticalCurrent = isRunning ? randFloat(coverageRng, CURRENT_OPTICAL_RUN_MIN, CURRENT_OPTICAL_RUN_MAX) : 0
+    events.push({
+      type: 'reading',
+      machineId: 3,
+      at: atMs,
+      currentA: opticalCurrent,
+      coveragePct: opticalCoverage,
       runState: isRunning,
     })
 

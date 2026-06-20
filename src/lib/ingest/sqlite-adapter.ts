@@ -23,8 +23,8 @@ export class SqliteIngestAdapter implements IngestAdapter {
     private tenantId: number,
   ) {}
 
-  reportReading(machineId: number, recordedAt: Date, currentA: number, runState: boolean): void {
-    this.pendingReadings.push({ tenantId: this.tenantId, machineId, recordedAt, currentA, runState })
+  reportReading(machineId: number, recordedAt: Date, currentA: number, runState: boolean, coveragePct: number | null = null): void {
+    this.pendingReadings.push({ tenantId: this.tenantId, machineId, recordedAt, currentA, coveragePct, runState })
   }
 
   reportStop(plantId: number, startAt: Date, reason: string, stopType: StopType): number {
