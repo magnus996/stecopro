@@ -33,7 +33,8 @@ export interface SimContext {
     bunker: number
     conveyor: number
     press: number
-    opticalSorter: number
+    /** Optional: absent until the optical_sorter machine is seeded. */
+    opticalSorter?: number
   }
   /** Fraction name → real DB id, covering Deink, Tetra/emballasjepapp, OCC, Miks */
   fractionIds: Record<string, number>
@@ -48,11 +49,15 @@ export interface RunBackfillOptions {
 // Index → real-id mappings
 // ---------------------------------------------------------------------------
 
-/** Abstract engine machine index (0/1/2) → real machineId from SimContext */
+/**
+ * Abstract engine machine index → real machineId from SimContext.
+ * Returns undefined for index 3 when the optical sorter is not provisioned yet,
+ * so the caller can skip that reading instead of writing a null machine_id.
+ */
 function resolveMachineId(
   machineKey: number,
   ctx: SimContext,
-): number {
+): number | undefined {
   switch (machineKey) {
     case 0: return ctx.machineIds.bunker
     case 1: return ctx.machineIds.conveyor
@@ -161,6 +166,7 @@ export function runBackfill(
         switch (ev.type) {
           case 'reading': {
             const machineId = resolveMachineId(ev.machineId, ctx)
+            if (machineId === undefined) break // machine not provisioned (e.g. optical sorter not seeded)
             adapter.reportReading(machineId, new Date(ev.at), ev.currentA, ev.runState, ev.coveragePct ?? null)
             break
           }
@@ -245,6 +251,7 @@ export function advanceLiveTick(
     switch (ev.type) {
       case 'reading': {
         const machineId = resolveMachineId(ev.machineId, ctx)
+        if (machineId === undefined) break // machine not provisioned (e.g. optical sorter not seeded)
         adapter.reportReading(machineId, new Date(ev.at), ev.currentA, ev.runState, ev.coveragePct ?? null)
         break
       }

@@ -75,13 +75,19 @@ export function startLive(): void {
     machineByType[m.type] = m.id
   }
 
-  const requiredMachineTypes = ['bunker', 'conveyor', 'press', 'optical_sorter'] as const
+  const requiredMachineTypes = ['bunker', 'conveyor', 'press'] as const
   for (const t of requiredMachineTypes) {
     if (machineByType[t] === undefined) {
       console.warn(`[simulator] live mode: machine type '${t}' not found — skipping start (run db:seed first)`)
       sqlite.close()
       return
     }
+  }
+
+  // Optical sorter is optional: if it isn't seeded yet, the simulator still runs
+  // for the other machines and simply records no utilisation until it's added.
+  if (machineByType['optical_sorter'] === undefined) {
+    console.warn("[simulator] live mode: machine type 'optical_sorter' not found — utilisation will not be recorded (run db:seed to add it)")
   }
 
   // Fraction discovery: map by name
